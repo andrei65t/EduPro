@@ -128,7 +128,7 @@ async def extract_text_from_image(file: UploadFile = File(...)):
         original_content_type = file.content_type
         
         if original_content_type not in ["image/jpeg", "image/png", "image/gif", "image/webp"]:
-             raise HTTPException(
+            raise HTTPException(
                 status_code=400, 
                 detail=f"Tip de fișier neacceptat: {original_content_type}. Trimite JPG, PNG, GIF, sau WebP."
             )
