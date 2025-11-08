@@ -3,7 +3,7 @@
 @{
     ViewData["Title"] = "Quiz din notițe";
     ViewData["PageTitle"] = "Quiz generat din notițe text";
-    ViewData["PageSubtitle"] = "Introdu textul notițelor, iar backend-ul va genera întrebări.";
+    ViewData["PageSubtitle"] = "Introdu textul notițelor, iar AI-ul va genera întrebări.";
 }
 
 <div class="row">
@@ -11,58 +11,227 @@
         <div class="app-card mb-3">
             <div class="app-card-header">
                 <div>
-                    <div class="app-card-title">Notițele tale</div>
-                    <div class="app-card-subtitle">Poți lipi aici textul sau să încarci dintr-un set salvat.</div>
+                    <div class="app-card-title">📝 Notițele tale</div>
+                    <div class="app-card-subtitle">Lipește textul sau selectează dintr-o notiță salvată.</div>
                 </div>
             </div>
 
-            <form method="post">
+            @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+            {
+                <div class="alert alert-danger m-3" role="alert">
+                    <strong>Eroare:</strong> @Model.ErrorMessage
+                </div>
+            }
+
+            <form method="post" asp-page-handler="Generate" class="p-3">
+                @if (Model.SavedNotes.Any())
+                {
+                    <div class="mb-3">
+                        <label asp-for="SelectedNoteId" class="form-label">
+                            📚 Sau alege o notiță salvată
+                        </label>
+                        <select asp-for="SelectedNoteId" class="form-select" id="noteSelector">
+                            <option value="">-- Selectează o notiță --</option>
+                            @foreach (var note in Model.SavedNotes)
+                            {
+                                <option value="@note.Id" data-text="@note.ExtractedText">
+                                    @note.Title (@note.CreatedAt.ToString("dd MMM yyyy"))
+                                </option>
+                            }
+                        </select>
+                        <div class="form-text">Selectarea unei notițe va completa automat textul de mai jos</div>
+                    </div>
+                }
+
                 <div class="mb-3">
                     <label asp-for="NotesText" class="form-label">Textul notițelor</label>
-                    <textarea asp-for="NotesText" class="form-control" rows="10" placeholder="Lipește aici notițele tale..."></textarea>
+                    <textarea asp-for="NotesText" class="form-control" rows="10" id="notesTextArea" placeholder="Lipește aici notițele tale (minim 50 caractere)..."></textarea>
+                    <div class="form-text">Textul trebuie să conțină suficiente informații pentru a genera întrebări relevante.</div>
                 </div>
 
-                <div class="mb-3">
-                    <label asp-for="Difficulty" class="form-label">Dificultate quiz</label>
-                    <select asp-for="Difficulty" class="form-select">
-                        <option value="easy">Ușor</option>
-                        <option value="medium">Mediu</option>
-                        <option value="hard">Greu</option>
-                    </select>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Difficulty" class="form-label">Dificultate quiz</label>
+                        <select asp-for="Difficulty" class="form-select">
+                            <option value="easy">Ușor - Întrebări simple</option>
+                            <option value="medium" selected>Mediu - Concepte de bază</option>
+                            <option value="hard">Greu - Analiză profundă</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="NumQuestions" class="form-label">Număr întrebări</label>
+                        <select asp-for="NumQuestions" class="form-select">
+                            <option value="3">3 întrebări</option>
+                            <option value="5" selected>5 întrebări</option>
+                            <option value="10">10 întrebări</option>
+                        </select>
+                    </div>
                 </div>
 
-                <button type="submit" class="btn btn-primary">Generează quiz (fake deocamdată)</button>
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-magic"></i> Generează quiz cu AI
+                </button>
             </form>
         </div>
     </div>
 
     <div class="col-lg-5">
-        <div class="app-card">
-            <div class="app-card-header">
-                <div>
-                    <div class="app-card-title">Quiz generat</div>
-                    <div class="app-card-subtitle">Deocamdată este doar un mock.</div>
+        @if (Model.Questions != null && Model.Questions.Any())
+        {
+            <div class="app-card">
+                <div class="app-card-header">
+                    <div>
+                        <div class="app-card-title">🎯 Quiz generat</div>
+                        <div class="app-card-subtitle">@Model.Questions.Count întrebări - Dificultate: @Model.Difficulty</div>
+                    </div>
+                </div>
+
+                @if (!Model.QuizSubmitted)
+                {
+                    <form method="post" asp-page-handler="Submit" class="p-3">
+                        <input type="hidden" name="QuestionsJson" value='@System.Text.Json.JsonSerializer.Serialize(Model.Questions)' />
+                        
+                        @for (int i = 0; i < Model.Questions.Count; i++)
+                        {
+                            var question = Model.Questions[i];
+                            <div class="mb-4 pb-3 border-bottom">
+                                <h6 class="mb-3"><strong>@(i + 1). @question.question</strong></h6>
+                                
+                                @for (int j = 0; j < question.options.Count; j++)
+                                {
+                                    var optionId = $"q{i}_opt{j}";
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="radio" 
+                                               name="answer_@i" 
+                                               value="@j" 
+                                               id="@optionId" 
+                                               required />
+                                        <label class="form-check-label" for="@optionId">
+                                            @question.options[j]
+                                        </label>
+                                    </div>
+                                }
+                            </div>
+                        }
+
+                        <button type="submit" class="btn btn-success w-100">
+                            <i class="bi bi-check-circle"></i> Verifică răspunsurile
+                        </button>
+                    </form>
+                }
+                else
+                {
+                    <div class="p-3">
+                        <div class="alert @(Model.Score >= 70 ? "alert-success" : Model.Score >= 50 ? "alert-warning" : "alert-danger")" role="alert">
+                            <h4 class="alert-heading">
+                                @if (Model.Score >= 70)
+                                {
+                                    <text>🎉 Felicitări!</text>
+                                }
+                                else if (Model.Score >= 50)
+                                {
+                                    <text>👍 Bine făcut!</text>
+                                }
+                                else
+                                {
+                                    <text>📚 Mai exersează!</text>
+                                }
+                            </h4>
+                            <hr>
+                            <h2 class="mb-0">Scor: @Model.Score%</h2>
+                        </div>
+
+                        @for (int i = 0; i < Model.Questions.Count; i++)
+                        {
+                            var question = Model.Questions[i];
+                            var userAnswerKey = $"answer_{i}";
+                            var userAnswered = Request.Form.ContainsKey(userAnswerKey);
+                            var userAnswer = userAnswered && int.TryParse(Request.Form[userAnswerKey], out int ans) ? ans : -1;
+                            var isCorrect = userAnswered && userAnswer == question.correct_answer;
+
+                            <div class="mb-4 pb-3 border-bottom">
+                                <h6 class="mb-3">
+                                    @if (isCorrect)
+                                    {
+                                        <span class="badge bg-success">✓</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger">✗</span>
+                                    }
+                                    <strong>@(i + 1). @question.question</strong>
+                                </h6>
+
+                                @for (int j = 0; j < question.options.Count; j++)
+                                {
+                                    var isUserAnswer = userAnswered && userAnswer == j;
+                                    var isCorrectAnswer = j == question.correct_answer;
+                                    var cssClass = isCorrectAnswer ? "text-success fw-bold" : isUserAnswer ? "text-danger" : "";
+
+                                    <div class="@cssClass mb-1">
+                                        @if (isCorrectAnswer)
+                                        {
+                                            <text>✓ </text>
+                                        }
+                                        else if (isUserAnswer)
+                                        {
+                                            <text>✗ </text>
+                                        }
+                                        else
+                                        {
+                                            <text>○ </text>
+                                        }
+                                        @question.options[j]
+                                    </div>
+                                }
+
+                                @if (!string.IsNullOrEmpty(question.explanation))
+                                {
+                                    <div class="mt-2 p-2 bg-light rounded small">
+                                        <strong>💡 Explicație:</strong> @question.explanation
+                                    </div>
+                                }
+                            </div>
+                        }
+
+                        <a asp-page="/TextQuiz" class="btn btn-primary w-100">
+                            <i class="bi bi-arrow-repeat"></i> Generează un nou quiz
+                        </a>
+                    </div>
+                }
+            </div>
+        }
+        else if (Model.Questions == null)
+        {
+            <div class="app-card">
+                <div class="app-card-header">
+                    <div>
+                        <div class="app-card-title">ℹ️ Cum funcționează?</div>
+                    </div>
+                </div>
+                <div class="p-3">
+                    <ol class="mb-0">
+                        <li class="mb-2">Lipește textul notițelor tale în câmpul din stânga</li>
+                        <li class="mb-2">Alege dificultatea și numărul de întrebări</li>
+                        <li class="mb-2">Click pe "Generează quiz cu AI"</li>
+                        <li class="mb-2">Răspunde la întrebări și verifică scorul!</li>
+                    </ol>
                 </div>
             </div>
-
-            <p class="text-muted small">Când implementezi backend-ul, aici vei afișa întrebările, variantele și scorul.</p>
-
-            <ul class="list-unstyled">
-                <li class="mb-3">
-                    <strong>1. Exemplu de întrebare?</strong>
-                    <div>
-                        <div><input type="radio" name="q1" /> Variante mock 1</div>
-                        <div><input type="radio" name="q1" /> Variante mock 2</div>
-                    </div>
-                </li>
-                <li class="mb-3">
-                    <strong>2. Alt exemplu de întrebare?</strong>
-                    <div>
-                        <div><input type="radio" name="q2" /> Variante mock A</div>
-                        <div><input type="radio" name="q2" /> Variante mock B</div>
-                    </div>
-                </li>
-            </ul>
-        </div>
+        }
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        // Auto-populate textarea when a note is selected
+        document.getElementById('noteSelector')?.addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            const noteText = selectedOption.getAttribute('data-text');
+            if (noteText) {
+                document.getElementById('notesTextArea').value = noteText;
+            }
+        });
+    </script>
+}
