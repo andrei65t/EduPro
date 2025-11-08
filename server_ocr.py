@@ -47,10 +47,10 @@ else:
 # --- SFÂRȘIT Configurare Bedrock ---
 
 
-def call_claude_vision_ocr(image_bytes: bytes, media_type: str) -> str:
+def call_claude_vision_ocr(image_bytes: bytes, media_type: str) -> dict:
     """
     Trimite bytes de imagine (ORICARE TIP) către Claude Vision.
-    Acum primește media_type (ex: 'image/jpeg') ca argument.
+    Returnează un dicționar cu textul extras și rezumatul.
     """
     if bedrock_client is None:
         raise HTTPException(status_code=503, detail="Clientul Bedrock nu este inițializat.")
@@ -58,9 +58,13 @@ def call_claude_vision_ocr(image_bytes: bytes, media_type: str) -> str:
     img_b64 = base64.b64encode(image_bytes).decode("utf-8")
 
     prompt_text = (
-        "Te rog să citești scrisul de mână din această imagine. "
-        "Returnează DOAR textul extras, exact așa cum apare. "
-        "Păstrează punctuația și ignoră rândurile noi. Nu adăuga niciun comentariu."
+        "Te rog să citești textul din această imagine (poate fi scris de mână sau tipărit). "
+        "Răspunde în format JSON cu 2 câmpuri:\n"
+        "1. 'text_extras': textul complet extras din imagine, exact așa cum apare\n"
+        "2. 'summary': un rezumat concis de 2-3 propoziții care explică ideea principală\n\n"
+        "Exemplu format răspuns:\n"
+        '{"text_extras": "textul complet aici", "summary": "rezumatul aici"}\n\n'
+        "Returnează DOAR JSON-ul, fără alt text."
     )
 
     body = {
@@ -95,8 +99,30 @@ def call_claude_vision_ocr(image_bytes: bytes, media_type: str) -> str:
     payload = json.loads(response["body"].read())
     text_blocks = [c.get("text", "") for c in payload.get("content", []) if c.get("type") == "text"]
     print("[Bedrock] Răspuns primit.")
-    # Claude returnează textul cu \n corect
-    return "\n".join(text_blocks).strip()
+    
+    # Extragem răspunsul complet
+    full_response = "\n".join(text_blocks).strip()
+    
+    # Încercăm să parsăm JSON-ul din răspuns
+    try:
+        # Claude poate returna JSON înconjurat de text, extragem doar JSON-ul
+        json_start = full_response.find('{')
+        json_end = full_response.rfind('}') + 1
+        if json_start != -1 and json_end > json_start:
+            json_str = full_response[json_start:json_end]
+            result = json.loads(json_str)
+            return {
+                "text_extras": result.get("text_extras", full_response),
+                "summary": result.get("summary", "")
+            }
+    except:
+        pass
+    
+    # Dacă nu reușim să parsăm JSON, returnăm textul ca atare
+    return {
+        "text_extras": full_response,
+        "summary": ""
+    }
 
 # --- SFÂRȘIT Funcții Procesare ---
 
@@ -135,18 +161,13 @@ async def extract_text_from_image(file: UploadFile = File(...)):
 
         # 3. Trimitem direct la Bedrock OCR
         print(f"Am primit fișierul: {file.filename} ({original_content_type})")
-        text_from_claude = call_claude_vision_ocr(image_bytes, original_content_type)
+        result = call_claude_vision_ocr(image_bytes, original_content_type)
         
-        # --- MODIFICARE AICI ---
-        # Înlocuim toate caracterele \n (linie nouă) cu un spațiu
-        final_text = text_from_claude.replace("\n", " ")
-        # --- SFÂRȘIT MODIFICARE ---
-
         return {
             "file_name": file.filename,
             "content_type": file.content_type,
-            # Folosim textul modificat
-            "text_extras": final_text if final_text else "(Nu a fost recunoscut niciun text)"
+            "text_extras": result.get("text_extras", "(Nu a fost recunoscut niciun text)"),
+            "summary": result.get("summary", "")
         }
         
     except Exception as e:

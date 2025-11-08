@@ -3,7 +3,7 @@
 @{
     ViewData["Title"] = "Încarcă notițe (imagine)";
     ViewData["PageTitle"] = "Încarcă notițe – imagine sau PDF";
-    ViewData["PageSubtitle"] = "Vom converti ulterior imaginea în text formatat (backend TODO).";
+    ViewData["PageSubtitle"] = "Vom converti imaginea în text folosind OCR.";
 }
 
 <div class="row justify-content-center">
@@ -16,18 +16,62 @@
                 </div>
             </div>
 
-            <form method="post" enctype="multipart/form-data">
+            @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+            {
+                <div class="alert alert-danger m-3" role="alert">
+                    <strong>Eroare:</strong> @Model.ErrorMessage
+                </div>
+            }
+
+            @if (!string.IsNullOrEmpty(Model.ExtractedText))
+            {
+                <div class="alert alert-success m-3" role="alert">
+                    <h5 class="alert-heading">✓ Text extras cu succes!</h5>
+                    
+                    @if (!string.IsNullOrEmpty(Model.Summary))
+                    {
+                        <hr>
+                        <div class="mt-2">
+                            <strong>📋 Rezumat:</strong>
+                            <div class="mt-2 p-3 bg-white rounded border border-success">
+                                @Model.Summary
+                            </div>
+                        </div>
+                    }
+                    
+                    <hr>
+                    <div class="mt-2">
+                        <strong>📝 Text complet extras:</strong>
+                        <div class="mt-2 p-3 bg-light rounded" style="white-space: pre-wrap; max-height: 200px; overflow-y: auto;">@Model.ExtractedText</div>
+                    </div>
+                    <hr>
+                    <div class="mt-3">
+                        <a asp-page="/Explain" asp-route-text="@Model.ExtractedText" class="btn btn-primary">
+                            <i class="bi bi-lightbulb"></i> Explică acest text
+                        </a>
+                        <a asp-page="/AskNotes" asp-route-notes="@Model.ExtractedText" class="btn btn-outline-primary ms-2">
+                            <i class="bi bi-chat-dots"></i> Pune întrebări
+                        </a>
+                    </div>
+                </div>
+            }
+
+            <form method="post" enctype="multipart/form-data" class="p-3">
                 <div class="mb-3">
                     <label asp-for="NotesFile" class="form-label">Alege fișierul de notițe</label>
-                    <input asp-for="NotesFile" class="form-control" type="file" />
-                    <span class="form-text">Backend: aici vei face OCR și extragerea textului.</span>
+                    <input asp-for="NotesFile" class="form-control" type="file" accept="image/*" required />
+                    <span class="form-text">Suportăm imagini JPG, PNG cu text scris de mână sau tipărit.</span>
                 </div>
 
                 <div class="mb-3">
-                    <label asp-for="Title" class="form-label">Titlul setului de notițe</label>
+                    <label asp-for="Title" class="form-label">Titlul setului de notițe (opțional)</label>
                     <input asp-for="Title" class="form-control" placeholder="Ex: Analiză – capitolul 2" />
                 </div>
 
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-upload"></i> Încarcă și extrage text
+                </button>
+                <button type="reset" class="btn btn-outline-light ms-2">Resetează</button>
                 <div class="mb-3">
                     <label class="form-label">Notițe extrase (preview)</label>
                     <textarea class="form-control" rows="6" disabled placeholder="După implementarea backend-ului, aici va apărea textul recunoscut."></textarea>
