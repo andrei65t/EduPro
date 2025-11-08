@@ -13,21 +13,21 @@
     <div class="app-layout">
         <!-- Sidebar vertical -->
         <nav class="sidebar d-flex flex-column">
-            <div class="sidebar-header">
-                <span class="sidebar-logo">E</span>
-                <span class="sidebar-title">EduPro</span>
-            </div>
+            <a class="sidebar-header d-flex align-items-center text-decoration-none" href="@Url.Page("/Account")">
+                <div class="sidebar-avatar rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-2">AP</div>
+                <div class="sidebar-account">
+                    <div class="sidebar-account-name text-white fw-bold">Andrei Popescu</div>
+                    <div class="sidebar-account-role small text-white-50">Student</div>
+                </div>
+            </a>
 
             <div class="sidebar-section">
                 <span class="sidebar-section-title">Workspace</span>
                 <a class="sidebar-link" asp-page="/Index">
-                    <span class="icon">🏠</span> Dashboard
+                    <span class="icon">🏠</span> Cursuri
                 </a>
                 <a class="sidebar-link" asp-page="/NotesUpload">
                     <span class="icon">📝</span> Încarcă notițe (imagine)
-                </a>
-                <a class="sidebar-link" asp-page="/NotesList">
-                    <span class="icon">📘</span> Notițele mele
                 </a>
                 <a class="sidebar-link" asp-page="/TextQuiz">
                     <span class="icon">❓</span> Quiz din notițe text
@@ -54,7 +54,7 @@
         <div class="content-area d-flex flex-column">
             <header class="topbar d-flex align-items-center justify-content-between">
                 <div class="topbar-left">
-                    <h1 class="topbar-title mb-0">@ViewData["PageTitle"]</h1>
+                    <h1 class="topbar-title mb-0 brand-gradient">EduPro</h1>
                     <span class="topbar-subtitle">@ViewData["PageSubtitle"]</span>
                 </div>
             </header>
