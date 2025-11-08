@@ -23,6 +23,19 @@
                 </div>
             }
 
+            @if (Model.SavedSuccessfully)
+            {
+                <div class="alert alert-success m-3" role="alert">
+                    <h5 class="alert-heading">✅ Notița a fost salvată cu succes!</h5>
+                    <hr>
+                    <div class="mt-2">
+                        <a asp-page="/NotesList" class="btn btn-primary">
+                            <i class="bi bi-list"></i> Vezi toate notițele
+                        </a>
+                    </div>
+                </div>
+            }
+
             @if (!string.IsNullOrEmpty(Model.ExtractedText))
             {
                 <div class="alert alert-success m-3" role="alert">
@@ -72,41 +85,7 @@
                     <i class="bi bi-upload"></i> Încarcă și extrage text
                 </button>
                 <button type="reset" class="btn btn-outline-light ms-2">Resetează</button>
-                <div class="mb-3">
-                    <label class="form-label">Notițe extrase (preview)</label>
-                    <textarea class="form-control" rows="6" disabled placeholder="După implementarea backend-ului, aici va apărea textul recunoscut."></textarea>
-                </div>
-
-                <button type="submit" class="btn btn-primary">Încarcă (deocamdată fake)</button>
-                <button type="button" class="btn btn-outline-light ms-2">Resetează</button>
-                <p></p>
-                
-                <a asp-page="/NotesList" class="btn btn-outline-light ms-2">📘 Vezi notițele salvate</a>
-
-                <button type="button" id="btnShowSummary" class="btn btn-outline-light ms-2">📄 Generează rezumat</button>
-
             </form>
-
-            <div id="summaryBox" class="mt-3" style="display:none;">
-                <label class="form-label">Rezumat automat</label>
-                <textarea class="form-control" id="summaryText" rows="5" placeholder="Aici va apărea rezumatul generat automat (TODO backend)..."></textarea>
-            </div>
         </div>
     </div>
 </div>
-
-@section Scripts {
-    <script>
-        // 🔹 Script simplu care afișează / ascunde caseta de rezumat
-        document.getElementById("btnShowSummary").addEventListener("click", function () {
-            const box = document.getElementById("summaryBox");
-            if (box.style.display === "none") {
-                box.style.display = "block";
-                // Exemplu placeholder – vei înlocui ulterior cu textul generat de backend
-                document.getElementById("summaryText").value = "Rezumatul se generează... (backend TODO)";
-            } else {
-                box.style.display = "none";
-            }
-        });
-    </script>
-}

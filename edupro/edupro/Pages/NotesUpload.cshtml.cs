@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Text.Json;
+using EduPro.Data;
+using EduPro.Models;
 
 namespace EduPro.Pages
 {
@@ -9,6 +11,7 @@ namespace EduPro.Pages
 		private readonly IHttpClientFactory _httpClientFactory;
 		private readonly IConfiguration _configuration;
 		private readonly ILogger<NotesUploadModel> _logger;
+		private readonly AppDbContext _dbContext;
 
 		[BindProperty]
 		public IFormFile? NotesFile { get; set; }
@@ -19,15 +22,18 @@ namespace EduPro.Pages
 		public string? ExtractedText { get; set; }
 		public string? Summary { get; set; }
 		public string? ErrorMessage { get; set; }
+		public bool SavedSuccessfully { get; set; }
 
 		public NotesUploadModel(
 			IHttpClientFactory httpClientFactory,
 			IConfiguration configuration,
-			ILogger<NotesUploadModel> logger)
+			ILogger<NotesUploadModel> logger,
+			AppDbContext dbContext)
 		{
 			_httpClientFactory = httpClientFactory;
 			_configuration = configuration;
 			_logger = logger;
+			_dbContext = dbContext;
 		}
 
 		public void OnGet()
@@ -83,6 +89,24 @@ namespace EduPro.Pages
 					if (string.IsNullOrWhiteSpace(ExtractedText) || ExtractedText == "Nu s-a extras niciun text din imagine.")
 					{
 						ErrorMessage = "Nu am putut extrage text din imagine. Verifică dacă imaginea conține text vizibil.";
+					}
+					else
+					{
+						// Salvează în baza de date
+						var note = new Note
+						{
+							ExtractedText = ExtractedText,
+							Summary = Summary,
+							Title = string.IsNullOrWhiteSpace(Title) ? $"Notiță din {NotesFile.FileName}" : Title,
+							OriginalFileName = NotesFile.FileName,
+							CreatedAt = DateTime.UtcNow
+						};
+
+						_dbContext.Notes.Add(note);
+						await _dbContext.SaveChangesAsync();
+						
+						SavedSuccessfully = true;
+						_logger.LogInformation("Note saved with ID: {NoteId}", note.Id);
 					}
 				}
 				else
