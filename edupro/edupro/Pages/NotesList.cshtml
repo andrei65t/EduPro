@@ -1,0 +1,93 @@
+﻿@page
+@model EduPro.Pages.NotesListModel
+@{
+    ViewData["Title"] = "Notițele mele";
+    ViewData["PageTitle"] = "Notițele mele salvate";
+    ViewData["PageSubtitle"] = "Toate notițele extrase din imagini";
+}
+
+<div class="row justify-content-center">
+    <div class="col-xl-10">
+        <div class="app-card">
+            <div class="app-card-header">
+                <div>
+                    <div class="app-card-title">📚 Notițele mele salvate</div>
+                    <div class="app-card-subtitle">
+                        Total: @Model.Notes.Count @(Model.Notes.Count == 1 ? "notiță" : "notițe")
+                    </div>
+                </div>
+                <div>
+                    <a asp-page="/NotesUpload" class="btn btn-primary">
+                        <i class="bi bi-plus-circle"></i> Adaugă notițe noi
+                    </a>
+                </div>
+            </div>
+
+            <div class="app-card-body p-3">
+                @if (!Model.Notes.Any())
+                {
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i>
+                        Nu ai încă nicio notiță salvată.
+                        <a asp-page="/NotesUpload" class="alert-link">Încarcă prima imagine!</a>
+                    </div>
+                }
+                else
+                {
+                    <div class="list-group">
+                        @foreach (var note in Model.Notes)
+                        {
+                            <div class="list-group-item">
+                                <div class="d-flex w-100 justify-content-between align-items-start">
+                                    <div class="flex-grow-1">
+                                        <h5 class="mb-2">
+                                            <i class="bi bi-file-text"></i>
+                                            @note.Title
+                                        </h5>
+
+                                        @if (!string.IsNullOrEmpty(note.Summary))
+                                        {
+                                            <div class="mb-2">
+                                                <strong>📋 Rezumat:</strong>
+                                                <p class="mb-1 text-muted">@note.Summary</p>
+                                            </div>
+                                        }
+
+                                        <div class="mb-2">
+                                            <small class="text-muted">
+                                                <i class="bi bi-calendar"></i>
+                                                @note.CreatedAt.ToString("dd MMMM yyyy, HH:mm")
+                                            </small>
+                                            <small class="text-muted ms-3">
+                                                <i class="bi bi-file-earmark"></i>
+                                                @note.OriginalFileName
+                                            </small>
+                                        </div>
+
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <a asp-page="/NoteDetails"
+                                               asp-route-id="@note.Id"
+                                               class="btn btn-outline-primary">
+                                                <i class="bi bi-eye"></i> Vezi detalii
+                                            </a>
+                                            <a asp-page="/Explain"
+                                               asp-route-text="@note.ExtractedText"
+                                               class="btn btn-outline-info">
+                                                <i class="bi bi-lightbulb"></i> Explică
+                                            </a>
+                                            <a asp-page="/AskNotes"
+                                               asp-route-notes="@note.ExtractedText"
+                                               class="btn btn-outline-success">
+                                                <i class="bi bi-chat-dots"></i> Întreabă
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
