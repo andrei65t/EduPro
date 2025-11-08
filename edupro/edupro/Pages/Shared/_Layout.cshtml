@@ -1,51 +1,70 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - edupro</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <title>@ViewData["Title"] - EduPro</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/edupro.styles.css" asp-append-version="true" />
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container">
-                <a class="navbar-brand" asp-area="" asp-page="/Index">edupro</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Privacy">Privacy</a>
-                        </li>
-                    </ul>
+    <div class="app-layout">
+        <!-- Sidebar vertical -->
+        <nav class="sidebar d-flex flex-column">
+            <div class="sidebar-header">
+                <span class="sidebar-logo">E</span>
+                <span class="sidebar-title">EduPro</span>
+            </div>
+
+            <div class="sidebar-section">
+                <span class="sidebar-section-title">Workspace</span>
+                <a class="sidebar-link" asp-page="/Index">
+                    <span class="icon">🏠</span> Dashboard
+                </a>
+                <a class="sidebar-link" asp-page="/NotesUpload">
+                    <span class="icon">📝</span> Încarcă notițe (imagine)
+                </a>
+                <a class="sidebar-link" asp-page="/TextQuiz">
+                    <span class="icon">❓</span> Quiz din notițe text
+                </a>
+                <a class="sidebar-link" asp-page="/Explain">
+                    <span class="icon">📚</span> Explică mai detaliat
+                </a>
+                <a class="sidebar-link" asp-page="/AskNotes">
+                    <span class="icon">💬</span> Întrebări din notițe
+                </a>
+                <a class="sidebar-link" asp-page="/Pomodoro">
+                    <span class="icon">⏱️</span> Pomodoro
+                </a>
+            </div>
+
+            <div class="mt-auto sidebar-footer">
+                <div class="sidebar-mini-info">
+                    <span class="small text-muted">v0.1 – frontend only</span>
                 </div>
             </div>
         </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
+
+        <!-- Conținut principal -->
+        <div class="content-area d-flex flex-column">
+            <header class="topbar d-flex align-items-center justify-content-between">
+                <div class="topbar-left">
+                    <h1 class="topbar-title mb-0">@ViewData["PageTitle"]</h1>
+                    <span class="topbar-subtitle">@ViewData["PageSubtitle"]</span>
+                </div>
+            </header>
+
+            <main role="main" class="flex-grow-1 p-4 app-main">
+                <div class="container-fluid px-0">
+                    @RenderBody()
+                </div>
+            </main>
+        </div>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2025 - edupro - <a asp-area="" asp-page="/Privacy">Privacy</a>
-        </div>
-    </footer>
-
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-
-    @await RenderSectionAsync("Scripts", required: false)
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    @RenderSection("Scripts", required: false)
 </body>
 </html>

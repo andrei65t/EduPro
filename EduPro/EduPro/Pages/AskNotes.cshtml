@@ -1,0 +1,69 @@
+﻿@page
+@model EduPro.Pages.AskNotesModel
+@{
+    ViewData["Title"] = "Întrebări din notițe";
+    ViewData["PageTitle"] = "Pune întrebări bazate pe notițele tale";
+    ViewData["PageSubtitle"] = "Dacă nu există notițe relevante, îți spune și răspunde cu un rezumat general.";
+}
+
+<div class="row">
+    <div class="col-lg-6">
+        <div class="app-card mb-3">
+            <div class="app-card-header">
+                <div>
+                    <div class="app-card-title">Întrebare</div>
+                    <div class="app-card-subtitle">Spune exact ce vrei să afli.</div>
+                </div>
+            </div>
+
+            <form method="post">
+                <div class="mb-3">
+                    <label asp-for="Question" class="form-label">Întrebarea ta</label>
+                    <textarea asp-for="Question" class="form-control" rows="4" placeholder="Ex: Explică-mi teorema X din notițele mele de analiză..."></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="SelectedNotesSet" class="form-label">Set de notițe</label>
+                    <select asp-for="SelectedNotesSet" class="form-select">
+                        <option value="">Auto (caută în toate notițele)</option>
+                        <option value="analiza">Analiză – capitolul 2</option>
+                        <option value="algebra">Algebră – curs 3</option>
+                        <!-- ulterior vei popula din DB -->
+                    </select>
+                    <div class="form-text">
+                        Backend: dacă nu găsește nimic relevant în notițe, trebuie să marcheze răspunsul ca fiind „din afară”.
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Răspunde</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="app-card">
+            <div class="app-card-header">
+                <div>
+                    <div class="app-card-title">Răspuns (mock)</div>
+                    <div class="app-card-subtitle">Indicator dacă e extras din notițe sau nu.</div>
+                </div>
+            </div>
+
+            <p class="small text-muted">
+                Aici vei afișa:
+            </p>
+            <ul class="small">
+                <li><strong>Status:</strong> „Răspuns extras din notițe” sau „Nu am găsit în notițe, răspuns din surse generale”.</li>
+                <li><strong>Fragment sursă:</strong> highlight din notițe, dacă există.</li>
+                <li><strong>Răspunsul final:</strong> explicat frumos.</li>
+            </ul>
+
+            <div class="border rounded-3 p-3">
+                <span class="badge badge-soft badge-soft-info mb-2 d-inline-block">Mock placeholder</span>
+                <p class="mb-0 small">
+                    După ce implementezi backend-ul, vei popula această zonă cu date reale.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>

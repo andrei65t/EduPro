@@ -1,0 +1,271 @@
+﻿@page
+@model EduPro.Pages.PomodoroModel
+@{
+    ViewData["Title"] = "Pomodoro";
+    ViewData["PageTitle"] = "Pomodoro focus timer";
+    ViewData["PageSubtitle"] = "Organizează-ți învățatul în sprinturi de focus și pauză.";
+}
+
+<div class="row justify-content-center">
+    <div class="col-xl-6 col-lg-7">
+        <div class="app-card pomodoro-card text-center">
+            <div class="app-card-header justify-content-center">
+                <div>
+                    <div class="app-card-title mb-1">Sesiune curentă</div>
+                    <div class="app-card-subtitle">
+                        Folosește Pomodoro ca să înveți, fără distrageri.
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <span id="pomodoro-phase"
+                      class="pomodoro-phase-badge pomodoro-phase-focus">
+                    Focus
+                </span>
+            </div>
+
+            <div class="pomodoro-timer mb-3" id="pomodoro-timer">25:00</div>
+
+            <!-- Butoane control -->
+            <div class="pomodoro-controls mb-3 d-flex justify-content-center gap-2 flex-wrap">
+                <button type="button" class="btn pomodoro-btn-primary" id="btn-start">Start</button>
+                <button type="button" class="btn pomodoro-btn-secondary" id="btn-pause">Pauză</button>
+                <button type="button" class="btn pomodoro-btn-secondary" id="btn-reset">Reset</button>
+            </div>
+
+            <!-- Durate focus / pauză -->
+            <div class="row g-3 mb-4 duration-row text-start">
+                <div class="col-sm-6">
+                    <div class="duration-pill">
+                        <div class="duration-label">Durata focus</div>
+                        <div class="duration-input-wrap">
+                            <input type="number"
+                                   class="form-control form-control-sm duration-input"
+                                   id="focus-length"
+                                   value="25" min="1" max="120" />
+                            <span class="duration-unit">min</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="duration-pill">
+                        <div class="duration-label">Durata pauză</div>
+                        <div class="duration-input-wrap">
+                            <input type="number"
+                                   class="form-control form-control-sm duration-input"
+                                   id="break-length"
+                                   value="5" min="1" max="60" />
+                            <span class="duration-unit">min</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Istoric sesiuni -->
+            <div class="pomodoro-history text-start">
+                <div class="pomodoro-history-header d-flex justify-content-between align-items-center">
+                    <span class="pomodoro-history-title">Istoric sesiuni focus</span>
+                    <button type="button"
+                            class="btn btn-link btn-sm text-decoration-none p-0 pomodoro-clear-btn"
+                            id="btn-clear-history">
+                        Șterge istoric
+                    </button>
+                </div>
+
+                <div id="session-history" class="pomodoro-history-list small">
+                    <p class="text-muted mb-0">
+                        N-ai rulat nicio sesiune încă. Pornește un focus de 25 de minute și îl vom salva aici.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+                (function () {
+                    let isRunning = false;
+                    let isFocus = true;
+
+                    const focusInput = document.getElementById("focus-length");
+                    const breakInput = document.getElementById("break-length");
+                    const phaseEl = document.getElementById("pomodoro-phase");
+                    const timerEl = document.getElementById("pomodoro-timer");
+
+                    const startBtn = document.getElementById("btn-start");
+                    const pauseBtn = document.getElementById("btn-pause");
+                    const resetBtn = document.getElementById("btn-reset");
+                    const clearHistoryBtn = document.getElementById("btn-clear-history");
+                    const historyContainer = document.getElementById("session-history");
+
+                    let focusLength = parseInt(focusInput.value || "25");
+                    let breakLength = parseInt(breakInput.value || "5");
+                    let remainingSeconds = focusLength * 60;
+                    let timerId = null;
+
+                    let sessionHistory = []; // { durationMinutes, status, endedAt }
+
+                    function formatTime(seconds) {
+                        const m = Math.floor(seconds / 60).toString().padStart(2, "0");
+                        const s = (seconds % 60).toString().padStart(2, "0");
+                        return `${m}:${s}`;
+                    }
+
+                    function applyPhaseStyles() {
+                        phaseEl.classList.remove("pomodoro-phase-focus", "pomodoro-phase-break");
+                        if (isFocus) {
+                            phaseEl.classList.add("pomodoro-phase-focus");
+                            phaseEl.textContent = "Focus";
+                        } else {
+                            phaseEl.classList.add("pomodoro-phase-break");
+                            phaseEl.textContent = "Pauză";
+                        }
+                    }
+
+                    function updateDisplay() {
+                        timerEl.textContent = formatTime(remainingSeconds);
+                        applyPhaseStyles();
+                    }
+
+                    function readLengthsFromInputs() {
+                        focusLength = Math.max(1, Math.min(120, parseInt(focusInput.value || "25")));
+                        breakLength = Math.max(1, Math.min(60, parseInt(breakInput.value || "5")));
+                        focusInput.value = focusLength;
+                        breakInput.value = breakLength;
+                    }
+
+                    function addSessionHistoryEntry(status) {
+                        // Deocamdată folosim durata planificată a focusului
+                        const entry = {
+                            durationMinutes: focusLength,
+                            status: status, // "Finalizat" / "Nefinalizat"
+                            endedAt: new Date()
+                        };
+                        sessionHistory.push(entry);
+                        renderHistory();
+                    }
+
+                    function renderHistory() {
+                        if (sessionHistory.length === 0) {
+                                    historyContainer.innerHTML = `
+                                        <div class="pomodoro-empty">
+                                            <span class="emoji">🕓</span>
+                                            <div><strong>N-ai rulat nicio sesiune încă</strong></div>
+                                            <div class="small text-secondary">Pornește un focus de 25 de minute și îl vom salva automat aici.</div>
+                                        </div>`;
+                            return;
+                        }
+
+                        const items = sessionHistory
+                            .slice()
+                            .reverse()
+                            .map((entry, index) => {
+                                const timeStr = entry.endedAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+                                const statusClass = entry.status === "Finalizat"
+                                    ? "status-dot-success"
+                                    : "status-dot-failed";
+
+                                return `
+        <div class="pomodoro-history-item">
+            <span class="status-dot ${statusClass}"></span>
+            <div class="flex-grow-1">
+                <div class="d-flex justify-content-between">
+                    <span>Focus · ${entry.durationMinutes} min</span>
+                    <span class="history-status">${entry.status}</span>
+                </div>
+                <div class="history-meta">Încheiat la ${timeStr}</div>
+            </div>
+        </div>`;
+                            })
+                            .join("");
+
+                        historyContainer.innerHTML = items;
+                    }
+
+                    function startTimer() {
+                        if (isRunning) return;
+
+                        readLengthsFromInputs();
+                        isRunning = true;
+                        startBtn.disabled = true;
+
+                        timerId = setInterval(() => {
+                            remainingSeconds--;
+
+                            if (remainingSeconds <= 0) {
+                                if (isFocus) {
+                                    // Sesiune de focus terminată natural
+                                    addSessionHistoryEntry("Finalizat");
+                                }
+
+                                // schimbăm faza
+                                isFocus = !isFocus;
+                                readLengthsFromInputs();
+                                remainingSeconds = (isFocus ? focusLength : breakLength) * 60;
+                            }
+
+                            updateDisplay();
+                        }, 1000);
+                    }
+
+                    function pauseTimer() {
+                        if (!isRunning) return;
+                        isRunning = false;
+                        startBtn.disabled = false;
+
+                        if (timerId) {
+                            clearInterval(timerId);
+                            timerId = null;
+                        }
+                    }
+
+                    function resetTimer() {
+                        // dacă era în focus și a trecut ceva timp, o marcăm ca nefinalizată
+                        if (isFocus) {
+                            const plannedSeconds = focusLength * 60;
+                            if (remainingSeconds < plannedSeconds) {
+                                addSessionHistoryEntry("Nefinalizat");
+                            }
+                        }
+
+                        pauseTimer();
+                        readLengthsFromInputs();
+                        isFocus = true;
+                        remainingSeconds = focusLength * 60;
+                        updateDisplay();
+                    }
+
+                    // Evenimente
+                    startBtn.addEventListener("click", startTimer);
+                    pauseBtn.addEventListener("click", pauseTimer);
+                    resetBtn.addEventListener("click", resetTimer);
+
+                    clearHistoryBtn.addEventListener("click", () => {
+                        sessionHistory = [];
+                        renderHistory();
+                    });
+
+                    focusInput.addEventListener("change", () => {
+                        readLengthsFromInputs();
+                        if (!isRunning && isFocus) {
+                            remainingSeconds = focusLength * 60;
+                            updateDisplay();
+                        }
+                    });
+
+                    breakInput.addEventListener("change", () => {
+                        readLengthsFromInputs();
+                        if (!isRunning && !isFocus) {
+                            remainingSeconds = breakLength * 60;
+                            updateDisplay();
+                        }
+                    });
+
+                    // init
+                    updateDisplay();
+                    renderHistory();
+                })();
+    </script>
+}

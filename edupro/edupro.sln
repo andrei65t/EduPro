@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.14.36310.24 d17.14
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "edupro", "edupro\edupro.csproj", "{5CDC007C-9E83-4513-8B26-255DA19E91B9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EduPro", "EduPro\EduPro.csproj", "{9BD745CD-EE05-4D4E-B5EF-329D28011DB2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,15 +11,15 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{5CDC007C-9E83-4513-8B26-255DA19E91B9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5CDC007C-9E83-4513-8B26-255DA19E91B9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5CDC007C-9E83-4513-8B26-255DA19E91B9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5CDC007C-9E83-4513-8B26-255DA19E91B9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9BD745CD-EE05-4D4E-B5EF-329D28011DB2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9BD745CD-EE05-4D4E-B5EF-329D28011DB2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9BD745CD-EE05-4D4E-B5EF-329D28011DB2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9BD745CD-EE05-4D4E-B5EF-329D28011DB2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {4440E300-32B1-4D41-AB17-836ECBACB48E}
+		SolutionGuid = {1A51791C-55DF-4B56-8422-DF0856BC4B2A}
 	EndGlobalSection
 EndGlobal

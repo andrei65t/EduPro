@@ -1,10 +1,73 @@
 ﻿@page
 @model IndexModel
 @{
-    ViewData["Title"] = "Home page";
+    ViewData["Title"] = "EduPro";
+    ViewData["PageTitle"] = "EduPro Dashboard";
+    ViewData["PageSubtitle"] = "Alege ce vrei să faci cu notițele tale";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="row g-3">
+    <div class="col-xl-3 col-md-6">
+        <div class="app-card h-100">
+            <div class="app-card-header">
+                <div>
+                    <div class="app-card-title">Încarcă notițe (imagine)</div>
+                    <div class="app-card-subtitle">Transformă poze în text frumos formatat.</div>
+                </div>
+                <span class="badge-soft badge-soft-info">OCR</span>
+            </div>
+            <a asp-page="/NotesUpload" class="btn btn-sm btn-primary">Deschide</a>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+        <div class="app-card h-100">
+            <div class="app-card-header">
+                <div>
+                    <div class="app-card-title">Quiz din notițe text</div>
+                    <div class="app-card-subtitle">Generează quiz și vezi scorul.</div>
+                </div>
+                <span class="badge-soft badge-soft-success">Quiz</span>
+            </div>
+            <a asp-page="/TextQuiz" class="btn btn-sm btn-primary">Deschide</a>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+        <div class="app-card h-100">
+            <div class="app-card-header">
+                <div>
+                    <div class="app-card-title">Explică mai detaliat</div>
+                    <div class="app-card-subtitle">Alege nivel: „ca la proști”, mediu, scurt.</div>
+                </div>
+            </div>
+            <a asp-page="/Explain" class="btn btn-sm btn-primary">Deschide</a>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+        <div class="app-card h-100">
+            <div class="app-card-header">
+                <div>
+                    <div class="app-card-title">Întrebări din notițe</div>
+                    <div class="app-card-subtitle">Q&A pe baza notițelor existente.</div>
+                </div>
+            </div>
+            <a asp-page="/AskNotes" class="btn btn-sm btn-primary">Deschide</a>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mt-2">
+    <div class="col-xl-4 col-md-6">
+        <div class="app-card h-100">
+            <div class="app-card-header">
+                <div>
+                    <div class="app-card-title">Pomodoro focus</div>
+                    <div class="app-card-subtitle">Studiu în sprinturi, fără aplicații externe.</div>
+                </div>
+            </div>
+            <a asp-page="/Pomodoro" class="btn btn-sm btn-primary">Deschide</a>
+        </div>
+    </div>
 </div>

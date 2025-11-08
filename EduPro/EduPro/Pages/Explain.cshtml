@@ -1,0 +1,55 @@
+﻿@page
+@model EduPro.Pages.ExplainModel
+@{
+    ViewData["Title"] = "Explică mai detaliat";
+    ViewData["PageTitle"] = "Explică mai detaliat un concept";
+    ViewData["PageSubtitle"] = "Alege nivelul de detaliu: „ca la proști”, mediu sau scurt rezumat.";
+}
+
+<div class="row justify-content-center">
+    <div class="col-xl-8">
+        <div class="app-card">
+            <div class="app-card-header">
+                <div>
+                    <div class="app-card-title">Concept / fragment de explicat</div>
+                    <div class="app-card-subtitle">Poți lipi o definiție, o teoremă sau un fragment greu.</div>
+                </div>
+            </div>
+
+            <form method="post">
+                <div class="mb-3">
+                    <label asp-for="InputText" class="form-label">Text de explicat</label>
+                    <textarea asp-for="InputText" class="form-control" rows="6" placeholder="Lipește aici ce vrei să fie explicat..."></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Level" class="form-label">Nivel de detaliu</label>
+                    <select asp-for="Level" class="form-select">
+                        <option value="simple">Ca la proști (super simplu)</option>
+                        <option value="medium">Mediu (student normal)</option>
+                        <option value="summary">Scurt rezumat</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Generează explicația</button>
+            </form>
+
+            <hr class="my-4" />
+
+            <div>
+                <h6>Explicație generată (mock)</h6>
+                <p class="text-muted small">
+                    În backend, aici vei afișa textul generat + exemple reale, dacă e cazul.
+                </p>
+                <div class="border rounded-3 p-3">
+                    <p class="mb-1"><strong>Exemplu:</strong> Aici ar veni explicația în funcție de nivelul ales.</p>
+                    <ul class="mb-0 small">
+                        <li>Dacă e „ca la proști” – cu analogii foarte simple.</li>
+                        <li>Dacă e mediu – ceva mai tehnic.</li>
+                        <li>Dacă e rezumat – doar ideea principală.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

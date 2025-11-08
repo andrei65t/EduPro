@@ -1,0 +1,41 @@
+﻿@page
+@model EduPro.Pages.NotesUploadModel
+@{
+    ViewData["Title"] = "Încarcă notițe (imagine)";
+    ViewData["PageTitle"] = "Încarcă notițe – imagine sau PDF";
+    ViewData["PageSubtitle"] = "Vom converti ulterior imaginea în text formatat (backend TODO).";
+}
+
+<div class="row justify-content-center">
+    <div class="col-xl-7 col-lg-8">
+        <div class="app-card">
+            <div class="app-card-header">
+                <div>
+                    <div class="app-card-title">Încarcă fișier</div>
+                    <div class="app-card-subtitle">Acceptăm imagini (JPG, PNG) sau PDF cu notițe.</div>
+                </div>
+            </div>
+
+            <form method="post" enctype="multipart/form-data">
+                <div class="mb-3">
+                    <label asp-for="NotesFile" class="form-label">Alege fișierul de notițe</label>
+                    <input asp-for="NotesFile" class="form-control" type="file" />
+                    <span class="form-text">Backend: aici vei face OCR și extragerea textului.</span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Title" class="form-label">Titlul setului de notițe</label>
+                    <input asp-for="Title" class="form-control" placeholder="Ex: Analiză – capitolul 2" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Notițe extrase (preview)</label>
+                    <textarea class="form-control" rows="6" disabled placeholder="După implementarea backend-ului, aici va apărea textul recunoscut."></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Încarcă (deocamdată fake)</button>
+                <button type="button" class="btn btn-outline-light ms-2">Resetează</button>
+            </form>
+        </div>
+    </div>
+</div>

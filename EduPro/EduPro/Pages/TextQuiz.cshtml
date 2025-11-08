@@ -1,0 +1,68 @@
+﻿@page
+@model EduPro.Pages.TextQuizModel
+@{
+    ViewData["Title"] = "Quiz din notițe";
+    ViewData["PageTitle"] = "Quiz generat din notițe text";
+    ViewData["PageSubtitle"] = "Introdu textul notițelor, iar backend-ul va genera întrebări.";
+}
+
+<div class="row">
+    <div class="col-lg-7">
+        <div class="app-card mb-3">
+            <div class="app-card-header">
+                <div>
+                    <div class="app-card-title">Notițele tale</div>
+                    <div class="app-card-subtitle">Poți lipi aici textul sau să încarci dintr-un set salvat.</div>
+                </div>
+            </div>
+
+            <form method="post">
+                <div class="mb-3">
+                    <label asp-for="NotesText" class="form-label">Textul notițelor</label>
+                    <textarea asp-for="NotesText" class="form-control" rows="10" placeholder="Lipește aici notițele tale..."></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Difficulty" class="form-label">Dificultate quiz</label>
+                    <select asp-for="Difficulty" class="form-select">
+                        <option value="easy">Ușor</option>
+                        <option value="medium">Mediu</option>
+                        <option value="hard">Greu</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Generează quiz (fake deocamdată)</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-lg-5">
+        <div class="app-card">
+            <div class="app-card-header">
+                <div>
+                    <div class="app-card-title">Quiz generat</div>
+                    <div class="app-card-subtitle">Deocamdată este doar un mock.</div>
+                </div>
+            </div>
+
+            <p class="text-muted small">Când implementezi backend-ul, aici vei afișa întrebările, variantele și scorul.</p>
+
+            <ul class="list-unstyled">
+                <li class="mb-3">
+                    <strong>1. Exemplu de întrebare?</strong>
+                    <div>
+                        <div><input type="radio" name="q1" /> Variante mock 1</div>
+                        <div><input type="radio" name="q1" /> Variante mock 2</div>
+                    </div>
+                </li>
+                <li class="mb-3">
+                    <strong>2. Alt exemplu de întrebare?</strong>
+                    <div>
+                        <div><input type="radio" name="q2" /> Variante mock A</div>
+                        <div><input type="radio" name="q2" /> Variante mock B</div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
