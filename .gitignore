@@ -1,1 +1,14 @@
+# Visual Studio
 .vs/
+*.user
+*.suo
+
+# Build
+bin/
+obj/
+Debug/
+Release/
+
+# Alte fișiere temporare
+*.log
+*.tmp
