@@ -12,3 +12,6 @@ Release/
 # Alte fișiere temporare
 *.log
 *.tmp
+
+
+.idea

@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  webapp:
+    build:
+      context: .
+      dockerfile: edupro/edupro/Dockerfile
+    container_name: webapp
+    ports:
+      - "7100:8080"
+      - "8001:8001"
+    env_file:
+      - .env
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - OCR_API_URL=http://localhost:8001
+    restart: unless-stopped
+    networks:
+      - app_network
+
+networks:
+  app_network:
+    driver: bridge
