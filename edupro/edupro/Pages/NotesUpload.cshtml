@@ -48,7 +48,7 @@
                             </div>
                         </div>
                     }
-                    
+
                     <div class="mb-3">
                         <label class="form-label"><strong>📝 Text extras</strong></label>
                         <textarea class="form-control" rows="6" readonly>@Model.ExtractedText</textarea>
@@ -75,6 +75,20 @@
                 <div class="mb-3">
                     <label asp-for="Title" class="form-label">Titlul setului de notițe (opțional)</label>
                     <input asp-for="Title" class="form-control" placeholder="Ex: Analiză – capitolul 2" />
+                </div>
+
+                <!-- SECȚIUNE NOUĂ: Categorie -->
+                <div class="mb-3">
+                    <label class="form-label">📁 Categorie</label>
+                    <select asp-for="CategoryId" class="form-select mb-2" asp-items="Model.Categories">
+                    </select>
+                    <div class="text-center mb-2">
+                        <small class="text-muted">SAU</small>
+                    </div>
+                    <input asp-for="NewCategoryName" class="form-control" placeholder="Creează categorie nouă..." />
+                    <small class="form-text text-muted">
+                        Dacă categoria există deja, notița va fi adăugată la acea categorie.
+                    </small>
                 </div>
 
                 <button type="submit" class="btn btn-primary">Încarcă și extrage text</button>
