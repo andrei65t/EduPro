@@ -12,7 +12,7 @@ Release/
 # Alte fișiere temporare
 *.log
 *.tmp
-
+.env
 
 .idea
 
