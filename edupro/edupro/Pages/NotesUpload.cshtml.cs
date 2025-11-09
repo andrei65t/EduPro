@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
 using EduPro.Data;
 using EduPro.Models;
@@ -19,10 +21,17 @@ namespace EduPro.Pages
 		[BindProperty]
 		public string? Title { get; set; }
 
+		[BindProperty]
+		public int? CategoryId { get; set; }
+
+		[BindProperty]
+		public string? NewCategoryName { get; set; }
+
 		public string? ExtractedText { get; set; }
 		public string? Summary { get; set; }
 		public string? ErrorMessage { get; set; }
 		public bool SavedSuccessfully { get; set; }
+		public List<SelectListItem> Categories { get; set; } = new();
 
 		public NotesUploadModel(
 			IHttpClientFactory httpClientFactory,
@@ -36,13 +45,15 @@ namespace EduPro.Pages
 			_dbContext = dbContext;
 		}
 
-		public void OnGet()
+		public async Task OnGetAsync()
 		{
-			// Display upload form
+			await LoadCategoriesAsync();
 		}
 
 		public async Task<IActionResult> OnPostAsync()
 		{
+			await LoadCategoriesAsync();
+
 			if (NotesFile == null || NotesFile.Length == 0)
 			{
 				ErrorMessage = "Te rog selectează un fișier valid.";
@@ -51,9 +62,8 @@ namespace EduPro.Pages
 
 			try
 			{
-				// Get OCR API URL from environment or configuration
-				var ocrApiUrl = Environment.GetEnvironmentVariable("OCR_API_URL") 
-					?? _configuration["OCR_API_URL"] 
+				var ocrApiUrl = Environment.GetEnvironmentVariable("OCR_API_URL")
+					?? _configuration["OCR_API_URL"]
 					?? "http://localhost:8001";
 
 				_logger.LogInformation("Calling OCR API at {OcrApiUrl}", ocrApiUrl);
@@ -61,16 +71,14 @@ namespace EduPro.Pages
 				var client = _httpClientFactory.CreateClient();
 				client.Timeout = TimeSpan.FromSeconds(30);
 
-				// Create multipart form data with the uploaded file
 				using var content = new MultipartFormDataContent();
 				using var fileStream = NotesFile.OpenReadStream();
 				using var streamContent = new StreamContent(fileStream);
-				
+
 				streamContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(
 					NotesFile.ContentType ?? "application/octet-stream");
 				content.Add(streamContent, "file", NotesFile.FileName);
 
-				// Send POST request to OCR API
 				var response = await client.PostAsync($"{ocrApiUrl}/ocr", content);
 
 				if (response.IsSuccessStatusCode)
@@ -85,28 +93,59 @@ namespace EduPro.Pages
 
 					ExtractedText = result?.text_extras ?? "Nu s-a extras niciun text din imagine.";
 					Summary = result?.summary ?? "";
-					
+
 					if (string.IsNullOrWhiteSpace(ExtractedText) || ExtractedText == "Nu s-a extras niciun text din imagine.")
 					{
 						ErrorMessage = "Nu am putut extrage text din imagine. Verifică dacă imaginea conține text vizibil.";
 					}
 					else
 					{
-						// Salvează în baza de date
+						// Determinare categorie
+						int? finalCategoryId = null;
+
+						// Dacă s-a introdus un nume nou de categorie
+						if (!string.IsNullOrWhiteSpace(NewCategoryName))
+						{
+							var existingCategory = await _dbContext.Categories
+								.FirstOrDefaultAsync(c => c.Name.ToLower() == NewCategoryName.Trim().ToLower());
+
+							if (existingCategory != null)
+							{
+								finalCategoryId = existingCategory.Id;
+							}
+							else
+							{
+								var newCategory = new Category
+								{
+									Name = NewCategoryName.Trim(),
+									Color = GenerateRandomColor()
+								};
+								_dbContext.Categories.Add(newCategory);
+								await _dbContext.SaveChangesAsync();
+								finalCategoryId = newCategory.Id;
+							}
+						}
+						else if (CategoryId.HasValue)
+						{
+							finalCategoryId = CategoryId.Value;
+						}
+
+						// Salvează notița
 						var note = new Note
 						{
 							ExtractedText = ExtractedText,
 							Summary = Summary,
 							Title = string.IsNullOrWhiteSpace(Title) ? $"Notiță din {NotesFile.FileName}" : Title,
 							OriginalFileName = NotesFile.FileName,
+							CategoryId = finalCategoryId,
 							CreatedAt = DateTime.UtcNow
 						};
 
 						_dbContext.Notes.Add(note);
 						await _dbContext.SaveChangesAsync();
-						
+
 						SavedSuccessfully = true;
-						_logger.LogInformation("Note saved with ID: {NoteId}", note.Id);
+						_logger.LogInformation("Note saved with ID: {NoteId} in Category: {CategoryId}", note.Id, finalCategoryId);
 					}
 				}
 				else
@@ -128,6 +167,31 @@ namespace EduPro.Pages
 			}
 
 			return Page();
+		}
+
+		private async Task LoadCategoriesAsync()
+		{
+			var categories = await _dbContext.Categories
+				.OrderBy(c => c.Name)
+				.ToListAsync();
+
+			Categories = categories.Select(c => new SelectListItem
+			{
+				Value = c.Id.ToString(),
+				Text = c.Name
+			}).ToList();
+
+			Categories.Insert(0, new SelectListItem { Value = "", Text = "Fără categorie" });
+		}
+
+		private string GenerateRandomColor()
+		{
+			var colors = new[]
+			{
+				"#6366f1", "#8b5cf6", "#ec4899", "#f59e0b",
+				"#10b981", "#3b82f6", "#ef4444", "#14b8a6"
+			};
+			return colors[new Random().Next(colors.Length)];
 		}
 
 		private class OcrResponse

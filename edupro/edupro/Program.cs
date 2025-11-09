@@ -1,31 +1,46 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using EduPro.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container
 builder.Services.AddRazorPages();
-builder.Services.AddHttpClient(); // Required for calling OCR API
+builder.Services.AddHttpClient();
 
-// Add Entity Framework DbContext (In-Memory pentru dezvoltare)
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseInMemoryDatabase("EduProDb"));
+	options.UseSqlite("Data Source=edupro.db"));
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline
+// Creează baza de date automat la fiecare pornire
+using (var scope = app.Services.CreateScope())
+{
+	var services = scope.ServiceProvider;
+	try
+	{
+		var context = services.GetRequiredService<AppDbContext>();
+
+		// Șterge și recrează baza de date
+		context.Database.EnsureDeleted();
+		context.Database.EnsureCreated();
+
+		Console.WriteLine("✅ Baza de date a fost creată cu succes!");
+	}
+	catch (Exception ex)
+	{
+		Console.WriteLine($"❌ Eroare la crearea bazei de date: {ex.Message}");
+	}
+}
+
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Error");
-    app.UseHsts();
+	app.UseExceptionHandler("/Error");
+	app.UseHsts();
 }
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
 app.UseRouting();
 app.UseAuthorization();
-
 app.MapRazorPages();
 
 app.Run();

@@ -1,0 +1,198 @@
+@page
+@model EduPro.Pages.CategoriesModel
+@{
+    ViewData["Title"] = "Gestionare Categorii";
+    ViewData["PageTitle"] = "Gestionare Categorii";
+    ViewData["PageSubtitle"] = "Organizează-ți notițele în categorii";
+}
+
+<div class="row justify-content-center">
+    <div class="col-xl-10">
+        <!-- Mesaje de feedback -->
+        @if (!string.IsNullOrEmpty(Model.Message))
+        {
+            <div class="alert alert-@(Model.MessageType == "success" ? "success" : "danger") alert-dismissible fade show" role="alert">
+                <i class="bi bi-@(Model.MessageType == "success" ? "check-circle" : "exclamation-circle")"></i>
+                @Model.Message
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+        <!-- Card pentru adăugare categorie nouă -->
+        <div class="app-card mb-4">
+            <div class="app-card-header">
+                <div class="app-card-title">➕ Adaugă categorie nouă</div>
+            </div>
+            <div class="app-card-body">
+                <form method="post" asp-page-handler="AddCategory">
+                    <div class="row g-3 align-items-end">
+                        <div class="col-md-6">
+                            <label for="newCategoryName" class="form-label">Nume categorie</label>
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="newCategoryName" 
+                                   asp-for="NewCategoryName"
+                                   placeholder="Ex: Matematică, Fizică, Istorie..."
+                                   required>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="newCategoryColor" class="form-label">Culoare</label>
+                            <input type="color" 
+                                   class="form-control form-control-color" 
+                                   id="newCategoryColor" 
+                                   asp-for="NewCategoryColor"
+                                   value="#6366f1">
+                        </div>
+                        <div class="col-md-3">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="bi bi-plus-circle"></i> Adaugă
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Lista de categorii -->
+        <div class="app-card">
+            <div class="app-card-header">
+                <div>
+                    <div class="app-card-title">📁 Categoriile mele</div>
+                    <div class="app-card-subtitle">
+                        Total: @Model.Categories.Count @(Model.Categories.Count == 1 ? "categorie" : "categorii")
+                    </div>
+                </div>
+            </div>
+
+            <div class="app-card-body p-3">
+                @if (!Model.Categories.Any())
+                {
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i>
+                        Nu ai încă nicio categorie creată. Adaugă prima ta categorie mai sus!
+                    </div>
+                }
+                else
+                {
+                    <div class="list-group">
+                        @foreach (var category in Model.Categories)
+                        {
+                            <div class="list-group-item">
+                                <div class="d-flex w-100 justify-content-between align-items-center">
+                                    <div class="d-flex align-items-center flex-grow-1">
+                                        <div class="category-color-indicator" 
+                                             style="background-color: @category.Color; width: 20px; height: 20px; border-radius: 4px; margin-right: 12px;">
+                                        </div>
+                                        <div>
+                                            <h5 class="mb-1">@category.Name</h5>
+                                            <small class="text-muted">
+                                                <i class="bi bi-file-text"></i>
+                                                @category.NotesCount @(category.NotesCount == 1 ? "notiță" : "notițe")
+                                                <span class="ms-3">
+                                                    <i class="bi bi-calendar"></i>
+                                                    @category.CreatedAt.ToString("dd MMM yyyy")
+                                                </span>
+                                            </small>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="btn-group" role="group">
+                                        @if (category.NotesCount > 0)
+                                        {
+                                            <!-- Buton pentru mutare notițe -->
+                                            <button type="button" 
+                                                    class="btn btn-sm btn-outline-info"
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#moveCategoryModal-@category.Id">
+                                                <i class="bi bi-arrow-left-right"></i> Mută notițe
+                                            </button>
+                                        }
+                                        
+                                        <!-- Buton pentru ștergere -->
+                                        <button type="button" 
+                                                class="btn btn-sm btn-outline-danger"
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#deleteModal-@category.Id">
+                                            <i class="bi bi-trash"></i> Șterge
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Modal pentru mutare notițe -->
+                                @if (category.NotesCount > 0)
+                                {
+                                    <div class="modal fade" id="moveCategoryModal-@category.Id" tabindex="-1">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title">Mută notițele din "@category.Name"</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                </div>
+                                                <form method="post" asp-page-handler="MoveCategory">
+                                                    <div class="modal-body">
+                                                        <input type="hidden" name="fromCategoryId" value="@category.Id" />
+                                                        <p>
+                                                            Selectează categoria în care vrei să muți 
+                                                            cele @category.NotesCount @(category.NotesCount == 1 ? "notiță" : "notițe"):
+                                                        </p>
+                                                        <select class="form-select" name="toCategoryId">
+                                                            <option value="">Fără categorie</option>
+                                                            @foreach (var otherCategory in Model.Categories.Where(c => c.Id != category.Id))
+                                                            {
+                                                                <option value="@otherCategory.Id">@otherCategory.Name</option>
+                                                            }
+                                                        </select>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Anulează</button>
+                                                        <button type="submit" class="btn btn-info">
+                                                            <i class="bi bi-arrow-left-right"></i> Mută notițele
+                                                        </button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+
+                                <!-- Modal pentru confirmare ștergere -->
+                                <div class="modal fade" id="deleteModal-@category.Id" tabindex="-1">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Confirmare ștergere</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <p>
+                                                    Ești sigur că vrei să ștergi categoria <strong>"@category.Name"</strong>?
+                                                </p>
+                                                @if (category.NotesCount > 0)
+                                                {
+                                                    <div class="alert alert-warning">
+                                                        <i class="bi bi-exclamation-triangle"></i>
+                                                        Cele @category.NotesCount @(category.NotesCount == 1 ? "notiță" : "notițe") 
+                                                        din această categorie vor fi mutate în "Fără categorie".
+                                                    </div>
+                                                }
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Anulează</button>
+                                                <form method="post" asp-page-handler="DeleteCategory" class="d-inline">
+                                                    <input type="hidden" name="categoryId" value="@category.Id" />
+                                                    <button type="submit" class="btn btn-danger">
+                                                        <i class="bi bi-trash"></i> Șterge categoria
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

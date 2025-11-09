@@ -1,4 +1,4 @@
-﻿@page
+@page
 @model EduPro.Pages.NotesListModel
 @{
     ViewData["Title"] = "Notițele mele";
@@ -8,43 +8,121 @@
 
 <div class="row justify-content-center">
     <div class="col-xl-10">
+
+        <!-- ========== MESAJE DE FEEDBACK ========== -->
+        @if (!string.IsNullOrEmpty(Model.Message))
+        {
+            <div class="alert alert-@(Model.MessageType == "success" ? "success" : "danger") alert-dismissible fade show" role="alert">
+                <i class="bi bi-@(Model.MessageType == "success" ? "check-circle" : "exclamation-circle")"></i>
+                @Model.Message
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+        <!-- ========== CARD PRINCIPAL ========== -->
         <div class="app-card">
+
+            <!-- Header cu titlu și butoane -->
             <div class="app-card-header">
                 <div>
                     <div class="app-card-title">📚 Notițele mele salvate</div>
                     <div class="app-card-subtitle">
-                        Total: @Model.Notes.Count @(Model.Notes.Count == 1 ? "notiță" : "notițe")
+                        @if (Model.SelectedCategoryId.HasValue)
+                        {
+                            <span>Filtru activ: <strong>@Model.CurrentFilter</strong> • </span>
+                        }
+                        <span>Total: @Model.Notes.Count @(Model.Notes.Count == 1 ? "notiță" : "notițe")</span>
                     </div>
                 </div>
-                <div>
+                <div class="d-flex gap-2">
+                    <a asp-page="/Categories" class="btn btn-outline-primary">
+                        <i class="bi bi-folder"></i> Gestionare categorii
+                    </a>
                     <a asp-page="/NotesUpload" class="btn btn-primary">
-                        <i class="bi bi-plus-circle"></i> Adaugă notițe noi
+                        <i class="bi bi-plus-circle"></i> Adaugă notițe
                     </a>
                 </div>
             </div>
 
+            <!-- ========== FILTRU DUPĂ CATEGORII ========== -->
+            <div class="app-card-body border-bottom">
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <strong>Filtrează:</strong>
+
+                    <!-- Buton "Toate" -->
+                    <a asp-page="/NotesList"
+                       class="btn btn-sm @(Model.SelectedCategoryId == null ? "btn-primary" : "btn-outline-primary")">
+                        <i class="bi bi-grid-3x3"></i> Toate
+                    </a>
+
+                    <!-- Butoane pentru fiecare categorie -->
+                    @foreach (var category in Model.Categories)
+                    {
+                        <a asp-page="/NotesList"
+                           asp-route-selectedCategoryId="@category.Id"
+                           class="btn btn-sm @(Model.SelectedCategoryId == category.Id ? "btn-primary" : "btn-outline-primary")"
+                           style="border-left: 3px solid @category.Color;">
+                            <i class="bi bi-folder"></i> @category.Name
+                        </a>
+                    }
+
+                    <!-- Buton pentru ștergere filtru -->
+                    @if (Model.SelectedCategoryId.HasValue)
+                    {
+                        <a asp-page="/NotesList" class="btn btn-sm btn-outline-danger">
+                            <i class="bi bi-x-circle"></i> Șterge filtru
+                        </a>
+                    }
+                </div>
+            </div>
+
+            <!-- ========== LISTA DE NOTIȚE ========== -->
             <div class="app-card-body p-3">
+
+                <!-- Mesaj când nu există notițe -->
                 @if (!Model.Notes.Any())
                 {
                     <div class="alert alert-info">
                         <i class="bi bi-info-circle"></i>
-                        Nu ai încă nicio notiță salvată.
-                        <a asp-page="/NotesUpload" class="alert-link">Încarcă prima imagine!</a>
+                        @if (Model.SelectedCategoryId.HasValue)
+                        {
+                            <text>Nu există notițe în categoria selectată.</text>
+                        }
+                        else
+                        {
+                            <text>Nu ai încă nicio notiță salvată. <a asp-page="/NotesUpload" class="alert-link">Încarcă prima imagine!</a></text>
+                        }
                     </div>
                 }
                 else
                 {
+                    <!-- Lista cu notițe -->
                     <div class="list-group">
                         @foreach (var note in Model.Notes)
                         {
                             <div class="list-group-item">
                                 <div class="d-flex w-100 justify-content-between align-items-start">
                                     <div class="flex-grow-1">
-                                        <h5 class="mb-2">
-                                            <i class="bi bi-file-text"></i>
-                                            @note.Title
-                                        </h5>
 
+                                        <!-- Titlu și badge categorie -->
+                                        <div class="d-flex align-items-center gap-2 mb-2">
+                                            <h5 class="mb-0">
+                                                <i class="bi bi-file-text"></i>
+                                                @note.Title
+                                            </h5>
+                                            @if (note.Category != null)
+                                            {
+                                                <span class="badge" style="background-color: @note.Category.Color;">
+                                                    @note.Category.Name
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-secondary">Fără categorie</span>
+                                            }
+                                        </div>
+
+                                        <!-- Rezumat (dacă există) -->
                                         @if (!string.IsNullOrEmpty(note.Summary))
                                         {
                                             <div class="mb-2">
@@ -53,6 +131,7 @@
                                             </div>
                                         }
 
+                                        <!-- Metadata (dată și fișier) -->
                                         <div class="mb-2">
                                             <small class="text-muted">
                                                 <i class="bi bi-calendar"></i>
@@ -64,12 +143,19 @@
                                             </small>
                                         </div>
 
+                                        <!-- Butoane acțiuni -->
                                         <div class="btn-group btn-group-sm" role="group">
                                             <a asp-page="/NoteDetails"
                                                asp-route-id="@note.Id"
                                                class="btn btn-outline-primary">
                                                 <i class="bi bi-eye"></i> Vezi detalii
                                             </a>
+                                            <button type="button"
+                                                    class="btn btn-outline-secondary"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#changeCategoryModal-@note.Id">
+                                                <i class="bi bi-folder"></i> Schimbă categoria
+                                            </button>
                                             <a asp-page="/Explain"
                                                asp-route-text="@note.ExtractedText"
                                                class="btn btn-outline-info">
@@ -83,6 +169,78 @@
                                         </div>
                                     </div>
                                 </div>
+
+                                <!-- ========== MODAL SCHIMBARE CATEGORIE ========== -->
+                                <div class="modal fade" id="changeCategoryModal-@note.Id" tabindex="-1">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+
+                                            <!-- Modal Header -->
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Schimbă categoria pentru "@note.Title"</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                            </div>
+
+                                            <!-- Modal Form -->
+                                            <form method="post" asp-page-handler="ChangeCategory">
+                                                <div class="modal-body">
+
+                                                    <!-- Hidden fields -->
+                                                    <input type="hidden" name="NoteId" value="@note.Id" />
+                                                    <input type="hidden" name="SelectedCategoryId" value="@Model.SelectedCategoryId" />
+
+                                                    <!-- Dropdown categorii existente -->
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Selectează o categorie existentă:</label>
+                                                        <select class="form-select" name="NewCategoryId">
+                                                            <option value="">Fără categorie</option>
+                                                            @foreach (var category in Model.Categories)
+                                                            {
+                                                                @if (note.CategoryId == category.Id)
+                                                                {
+                                                                    <option value="@category.Id" selected>@category.Name</option>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <option value="@category.Id">@category.Name</option>
+                                                                }
+                                                            }
+                                                        </select>
+                                                    </div>
+
+                                                    <!-- Separator SAU -->
+                                                    <div class="text-center mb-2">
+                                                        <small class="text-muted">SAU</small>
+                                                    </div>
+
+                                                    <!-- Input pentru categorie nouă -->
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Creează o categorie nouă:</label>
+                                                        <input type="text"
+                                                               class="form-control"
+                                                               name="NewCategoryName"
+                                                               placeholder="Numele categoriei noi...">
+                                                        <small class="form-text text-muted">
+                                                            Dacă categoria există deja, notița va fi adăugată la acea categorie.
+                                                        </small>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Modal Footer -->
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                                        Anulează
+                                                    </button>
+                                                    <button type="submit" class="btn btn-primary">
+                                                        <i class="bi bi-check-circle"></i> Salvează
+                                                    </button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- ========== END MODAL ========== -->
+
                             </div>
                         }
                     </div>

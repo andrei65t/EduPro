@@ -43,7 +43,7 @@ else
                     {
                         <div class="mb-4">
                             <h5>📋 Rezumat</h5>
-                            <div class="p-3 bg-light rounded border">
+                            <div class="mb-2 p-3 bg-light rounded border border-success text-dark">
                                 @Model.Note.Summary
                             </div>
                         </div>
@@ -51,7 +51,7 @@ else
 
                     <div class="mb-4">
                         <h5>📝 Text complet extras</h5>
-                        <div class="p-3 bg-light rounded" style="white-space: pre-wrap;">@Model.Note.ExtractedText</div>
+                        <div class="mt-2 p-3 bg-light rounded border text-dark" style="white-space: pre-wrap; max-height: 400px; overflow-y: auto;">@Model.Note.ExtractedText</div>
                     </div>
 
                     <div class="mb-4">
