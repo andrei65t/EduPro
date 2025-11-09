@@ -23,6 +23,40 @@ html, body {
     color: var(--text);
 }
 
+/* ========== BUTOANE ROTUNJITE (GLOBAL) ========== */
+.btn {
+    border-radius: 0.5rem !important;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.btn-sm {
+    border-radius: 0.4rem !important;
+}
+
+.btn-lg {
+    border-radius: 0.6rem !important;
+}
+
+/* Butoane în grup - rotunjite doar la capete */
+.btn-group .btn {
+    border-radius: 0 !important;
+}
+
+    .btn-group .btn:first-child {
+        border-top-left-radius: 0.5rem !important;
+        border-bottom-left-radius: 0.5rem !important;
+    }
+
+    .btn-group .btn:last-child {
+        border-top-right-radius: 0.5rem !important;
+        border-bottom-right-radius: 0.5rem !important;
+    }
+
+    .btn-group .btn:only-child {
+        border-radius: 0.5rem !important;
+    }
+
 /* Layout general */
 .app-layout {
     display: flex;
@@ -47,10 +81,10 @@ html, body {
     cursor: pointer;
 }
 
-.sidebar-header a {
-    text-decoration: none;
-    color: inherit;
-}
+    .sidebar-header a {
+        text-decoration: none;
+        color: inherit;
+    }
 
 .sidebar-avatar {
     width: 44px;
@@ -198,7 +232,7 @@ html, body {
     background-color: var(--surface);
     border: 1px solid rgba(148, 163, 184, 0.6);
     color: var(--text);
-    border-radius: 0.7rem;
+    border-radius: 0.5rem !important;
 }
 
     .form-control:focus, .form-select:focus, textarea:focus {
@@ -211,7 +245,6 @@ html, body {
 .btn-primary {
     background: linear-gradient(135deg, var(--success), var(--primary));
     border: none;
-    border-radius: 999px;
     font-weight: 500;
     padding-inline: 1.2rem;
 }
@@ -221,12 +254,18 @@ html, body {
     }
 
 .btn-outline-light {
-    border-radius: 999px;
+    border-radius: 0.5rem !important;
 }
 
 /* Badge-uri custom */
+.badge {
+    border-radius: 0.4rem !important;
+    padding: 0.35rem 0.65rem;
+    font-weight: 600;
+    font-size: 0.8rem;
+}
+
 .badge-soft {
-    border-radius: 999px;
     padding: 0.2rem 0.55rem;
     font-size: 0.75rem;
 }
@@ -249,7 +288,7 @@ html, body {
     margin-top: 1.25rem;
 }
 
- .course-card {
+.course-card {
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -264,46 +303,62 @@ html, body {
     transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
 }
 
-.course-card:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 18px 40px rgba(2,6,23,0.6);
-    background: linear-gradient(180deg, rgba(13,110,253,0.06), rgba(13,110,253,0.02));
-}
+    .course-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 18px 40px rgba(2,6,23,0.6);
+        background: linear-gradient(180deg, rgba(13,110,253,0.06), rgba(13,110,253,0.02));
+    }
 
-.course-card img,
-.course-avatar {
-    width: 96px;
-    height: 96px;
-    border-radius: 12px;
-    flex-shrink: 0;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 34px;
-    font-weight: 800;
-    color: #ffffff;
-    text-transform: uppercase;
-}
+    .course-card img,
+    .course-avatar {
+        width: 96px;
+        height: 96px;
+        border-radius: 12px;
+        flex-shrink: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 34px;
+        font-weight: 800;
+        color: #ffffff;
+        text-transform: uppercase;
+    }
 
-/* Avatar / placeholder for courses when image assets are missing */
 .course-avatar {
     background: linear-gradient(135deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
 }
 
-/* Subject-specific colors (Moodle-like feel) */
-.course-matematica { background: linear-gradient(135deg,#6d28d9,#8b5cf6); }
-.course-romana    { background: linear-gradient(135deg,#ef4444,#fb923c); }
-.course-chimie    { background: linear-gradient(135deg,#06b6d4,#14b8a6); }
-.course-fizica    { background: linear-gradient(135deg,#06b6d4,#0ea5e9); }
-.course-biologie  { background: linear-gradient(135deg,#16a34a,#86efac); }
-.course-engleza   { background: linear-gradient(135deg,#e879f9,#8b5cf6); }
+/* Subject-specific colors */
+.course-matematica {
+    background: linear-gradient(135deg,#6d28d9,#8b5cf6);
+}
+
+.course-romana {
+    background: linear-gradient(135deg,#ef4444,#fb923c);
+}
+
+.course-chimie {
+    background: linear-gradient(135deg,#06b6d4,#14b8a6);
+}
+
+.course-fizica {
+    background: linear-gradient(135deg,#06b6d4,#0ea5e9);
+}
+
+.course-biologie {
+    background: linear-gradient(135deg,#16a34a,#86efac);
+}
+
+.course-engleza {
+    background: linear-gradient(135deg,#e879f9,#8b5cf6);
+}
 
 .course-title {
     font-size: 1.25rem;
     font-weight: 700;
 }
 
-/* Lesson buttons (left column) */
+/* Lesson buttons */
 .lesson-btn {
     display: block;
     width: 100%;
@@ -320,24 +375,24 @@ html, body {
     font-size: 0.98rem;
 }
 
-.lesson-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 12px 30px rgba(2,6,23,0.5);
-}
+    .lesson-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 30px rgba(2,6,23,0.5);
+    }
 
-.lesson-btn.active {
-    background: linear-gradient(135deg,#06b6d4,#22c55e);
-    color: #021018;
-}
+    .lesson-btn.active {
+        background: linear-gradient(135deg,#06b6d4,#22c55e);
+        color: #021018;
+    }
 
-/* Date badges under lessons */
+/* Date badges */
 .date-badge {
     display: inline-block;
     margin-right: 6px;
     margin-top: 6px;
 }
 
-/* Notes panel hidden state */
+/* Notes panel */
 #notes-panel.hidden {
     display: flex !important;
     align-items: center;
@@ -346,7 +401,7 @@ html, body {
     color: #9ca3af;
 }
 
-/* Brand gradient for the topbar title */
+/* Brand gradient */
 .brand-gradient {
     background: linear-gradient(135deg, #06b6d4 0%, #22c55e 100%);
     -webkit-background-clip: text;
@@ -363,10 +418,10 @@ html, body {
     margin-bottom: 0.6rem;
 }
 
-/* Scan bar style */
+/* Scan bar */
 .scan-bar {
     display: inline-block;
-    min-width: 380px; /* make it visibly longer */
+    min-width: 380px;
     border-radius: 14px;
     padding: 18px 28px;
     color: #071024;
@@ -379,19 +434,12 @@ html, body {
     text-decoration: none;
 }
 
-.scan-bar:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 18px 60px rgba(6, 182, 212, 0.18), 0 0 60px rgba(34,197,94,0.14);
-    opacity: 0.98;
-    color: #021018;
-}
-
-/* subtle neon pulse to draw attention */
-.scan-bar::after {
-    content: '';
-    position: absolute;
-    pointer-events: none;
-}
+    .scan-bar:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 18px 60px rgba(6, 182, 212, 0.18), 0 0 60px rgba(34,197,94,0.14);
+        opacity: 0.98;
+        color: #021018;
+    }
 
 /* Pomodoro */
 .pomodoro-card {
@@ -435,10 +483,8 @@ html, body {
     border-color: rgba(56, 189, 248, 0.65);
 }
 
-/* Butoane */
 .pomodoro-controls .btn {
     min-width: 110px;
-    border-radius: 999px;
     font-weight: 500;
     padding-inline: 1.3rem;
 }
@@ -462,7 +508,7 @@ html, body {
         background: rgba(15, 23, 42, 0.9);
     }
 
-/* Durate focus/pauză */
+/* Durate */
 .duration-row {
     margin-top: 0.5rem;
 }
@@ -525,7 +571,7 @@ html, body {
 
 .pomodoro-empty {
     text-align: center;
-    color: #cbd5e1; /* gri deschis - lizibil pe fundal închis */
+    color: #cbd5e1;
     font-size: 0.9rem;
     background: rgba(15, 23, 42, 0.6);
     border: 1px dashed rgba(148, 163, 184, 0.3);
@@ -578,7 +624,7 @@ html, body {
     color: #9ca3af;
 }
 
-/* ========== LIST GROUP (pentru NotesList) ========== */
+/* ========== LIST GROUP ========== */
 .list-group {
     --bs-list-group-bg: transparent;
     --bs-list-group-border-color: rgba(148, 163, 184, 0.15);
@@ -587,32 +633,42 @@ html, body {
 .list-group-item {
     background: var(--surface-alt);
     border: 1px solid var(--border-soft);
-    border-radius: 0.75rem;
+    border-radius: 0.75rem !important;
     margin-bottom: 1rem;
     padding: 1.25rem;
     color: var(--text);
     transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
-.list-group-item:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(2, 6, 23, 0.6);
-    background: rgba(30, 41, 59, 0.7);
-}
+    .list-group-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(2, 6, 23, 0.6);
+        background: rgba(30, 41, 59, 0.7);
+    }
 
-/* ========== BUTOANE OUTLINE (pentru compatibilitate cu tema întunecată) ========== */
+    .list-group-item:first-child {
+        border-top-left-radius: 0.75rem !important;
+        border-top-right-radius: 0.75rem !important;
+    }
+
+    .list-group-item:last-child {
+        border-bottom-left-radius: 0.75rem !important;
+        border-bottom-right-radius: 0.75rem !important;
+    }
+
+/* ========== BUTOANE OUTLINE ========== */
 .btn-outline-primary {
     color: #60a5fa;
     border-color: #60a5fa;
     background: transparent;
 }
 
-.btn-outline-primary:hover,
-.btn-outline-primary:focus {
-    background-color: #60a5fa;
-    border-color: #60a5fa;
-    color: #020617;
-}
+    .btn-outline-primary:hover,
+    .btn-outline-primary:focus {
+        background-color: #60a5fa;
+        border-color: #60a5fa;
+        color: #020617;
+    }
 
 .btn-outline-secondary {
     color: #94a3b8;
@@ -620,12 +676,12 @@ html, body {
     background: transparent;
 }
 
-.btn-outline-secondary:hover,
-.btn-outline-secondary:focus {
-    background-color: #94a3b8;
-    border-color: #94a3b8;
-    color: #020617;
-}
+    .btn-outline-secondary:hover,
+    .btn-outline-secondary:focus {
+        background-color: #94a3b8;
+        border-color: #94a3b8;
+        color: #020617;
+    }
 
 .btn-outline-info {
     color: #38bdf8;
@@ -633,12 +689,12 @@ html, body {
     background: transparent;
 }
 
-.btn-outline-info:hover,
-.btn-outline-info:focus {
-    background-color: #38bdf8;
-    border-color: #38bdf8;
-    color: #020617;
-}
+    .btn-outline-info:hover,
+    .btn-outline-info:focus {
+        background-color: #38bdf8;
+        border-color: #38bdf8;
+        color: #020617;
+    }
 
 .btn-outline-success {
     color: #22c55e;
@@ -646,12 +702,12 @@ html, body {
     background: transparent;
 }
 
-.btn-outline-success:hover,
-.btn-outline-success:focus {
-    background-color: #22c55e;
-    border-color: #22c55e;
-    color: #020617;
-}
+    .btn-outline-success:hover,
+    .btn-outline-success:focus {
+        background-color: #22c55e;
+        border-color: #22c55e;
+        color: #020617;
+    }
 
 .btn-outline-danger {
     color: #ef4444;
@@ -659,28 +715,32 @@ html, body {
     background: transparent;
 }
 
-.btn-outline-danger:hover,
-.btn-outline-danger:focus {
-    background-color: #ef4444;
-    border-color: #ef4444;
-    color: #fff;
-}
+    .btn-outline-danger:hover,
+    .btn-outline-danger:focus {
+        background-color: #ef4444;
+        border-color: #ef4444;
+        color: #fff;
+    }
 
-/* ========== MODAL (fundal întunecat profesionist) ========== */
+/* ========== MODAL ========== */
 .modal-content {
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 1rem;
+    border-radius: 1rem !important;
     color: var(--text);
     box-shadow: 0 24px 60px rgba(2, 6, 23, 0.8);
 }
 
 .modal-header {
     border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+    border-top-left-radius: 1rem !important;
+    border-top-right-radius: 1rem !important;
 }
 
 .modal-footer {
     border-top: 1px solid rgba(148, 163, 184, 0.2);
+    border-bottom-left-radius: 1rem !important;
+    border-bottom-right-radius: 1rem !important;
 }
 
 .modal-title {
@@ -693,13 +753,13 @@ html, body {
     opacity: 0.8;
 }
 
-.btn-close:hover {
-    opacity: 1;
-}
+    .btn-close:hover {
+        opacity: 1;
+    }
 
-/* ========== ALERT (pentru mesaje de succes/eroare) ========== */
+/* ========== ALERT ========== */
 .alert {
-    border-radius: 0.75rem;
+    border-radius: 0.75rem !important;
     border: 1px solid transparent;
 }
 
@@ -721,33 +781,51 @@ html, body {
     color: #7dd3fc;
 }
 
+.alert-warning {
+    background-color: rgba(251, 146, 60, 0.15);
+    border-color: rgba(251, 146, 60, 0.35);
+    color: #fdba74;
+}
+
 .alert-link {
     color: #60a5fa;
     font-weight: 600;
 }
 
-.alert-link:hover {
-    color: #93c5fd;
-}
-
-/* ========== BADGE (pentru categorii) ========== */
-.badge {
-    font-weight: 600;
-    padding: 0.35rem 0.65rem;
-    border-radius: 0.5rem;
-    font-size: 0.8rem;
-}
+    .alert-link:hover {
+        color: #93c5fd;
+    }
 
 /* ===== Utilities ===== */
-.text-bright { color: rgba(255,255,255,0.95) !important; }
-.text-soft { color: var(--text-soft) !important; }
-.text-muted { color: var(--text-muted) !important; }
-.border-soft { border-color: var(--border-soft) !important; }
-.bg-surface { background: var(--surface) !important; }
-.bg-surface-alt { background: var(--surface-alt) !important; }
-.badge-contrast { color: #fff !important; }
+.text-bright {
+    color: rgba(255,255,255,0.95) !important;
+}
 
-/* ===== Response Box (pentru AskNotes) ===== */
+.text-soft {
+    color: var(--text-soft) !important;
+}
+
+.text-muted {
+    color: var(--text-muted) !important;
+}
+
+.border-soft {
+    border-color: var(--border-soft) !important;
+}
+
+.bg-surface {
+    background: var(--surface) !important;
+}
+
+.bg-surface-alt {
+    background: var(--surface-alt) !important;
+}
+
+.badge-contrast {
+    color: #fff !important;
+}
+
+/* ===== Response Box ===== */
 .response-box {
     background: var(--surface-alt);
     border: 1px solid var(--border);
@@ -757,13 +835,12 @@ html, body {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
-
-/* ========== FORM TEXT (text ajutor sub inputs) ========== */
+/* ========== FORM TEXT ========== */
 .form-text {
     color: #9ca3af;
 }
 
-/* ========== BG-LIGHT override pentru tema întunecată ========== */
+/* ========== BG-LIGHT override ========== */
 .bg-light {
     background-color: rgba(30, 41, 59, 0.6) !important;
 }
@@ -773,10 +850,20 @@ html, body {
     padding: 1rem 1.25rem;
 }
 
-.app-card-body.border-bottom {
-    border-bottom: 1px solid rgba(148, 163, 184, 0.2) !important;
+    .app-card-body.border-bottom {
+        border-bottom: 1px solid rgba(148, 163, 184, 0.2) !important;
+    }
+
+/* ========== TEXT-DARK pentru vizibilitate ========== */
+.text-dark {
+    color: #e4e7eb !important;
 }
 
+/* ========== ROUNDED pentru consistență ========== */
+.rounded {
+    border-radius: 0.5rem !important;
+}
 
-
-
+.rounded-3 {
+    border-radius: 0.75rem !important;
+}

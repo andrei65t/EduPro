@@ -390,8 +390,131 @@ async def ask_question(request: AskQuestionRequest):
         raise HTTPException(status_code=500, detail=f"Eroare la generarea răspunsului: {e}")
 
 
+# --- ==================== ENDPOINT GRAMMAR CHECK ==================== ---
+
+class GrammarCheckRequest(BaseModel):
+    text: str
+
+def call_claude_grammar_check(text: str) -> dict:
+    """
+    Trimite textul către Claude pentru corectare gramaticală.
+    Returnează un dicționar cu textul corectat și lista de corecții.
+    """
+    if bedrock_client is None:
+        raise HTTPException(status_code=503, detail="Clientul Bedrock nu este inițializat.")
+
+    prompt_text = f"""Ești un expert în limba română, specializat în corectarea gramaticală și stilistică.
+
+Textul de corectat:
+---
+{text}
+---
+
+Taskul tău:
+1. Identifică toate erorile gramaticale, ortografice și de punctuație
+2. Corectează textul menținând sensul și stilul original
+3. Listează fiecare corecție făcută în format: "Original → Corectat (motivul)"
+
+Răspunde DOAR cu un JSON în următorul format:
+{{
+  "corrected_text": "textul complet corectat aici",
+  "corrections": [
+    "Prima corecție: explicație",
+    "A doua corecție: explicație"
+  ]
+}}
+
+IMPORTANT:
+- Păstrează formatarea și paragrafele originale
+- Dacă textul este perfect, returnează-l nemodificat cu lista de corecții goală
+- Fii precis și profesionist în explicații
+- Returnează DOAR JSON-ul, fără alt text"""
+
+    body = {
+        "anthropic_version": "bedrock-2023-05-31",
+        "max_tokens": 4096,
+        "temperature": 0.3,  # Temperatură joasă pentru consistență
+        "messages": [
+            {
+                "role": "user",
+                "content": [{"type": "text", "text": prompt_text}]
+            }
+        ],
+    }
+
+    print(f"[Bedrock] Se trimite cererea de grammar check...")
+    response = bedrock_client.invoke_model(
+        modelId=VISION_MODEL_ID,
+        body=json.dumps(body),
+        accept="application/json",
+        contentType="application/json",
+    )
+
+    payload = json.loads(response["body"].read())
+    text_blocks = [c.get("text", "") for c in payload.get("content", []) if c.get("type") == "text"]
+    print("[Bedrock] Răspuns grammar check primit.")
+    
+    full_response = "\n".join(text_blocks).strip()
+    
+    # Extragem JSON-ul din răspuns
+    try:
+        json_start = full_response.find('{')
+        json_end = full_response.rfind('}') + 1
+        if json_start != -1 and json_end > json_start:
+            json_str = full_response[json_start:json_end]
+            result = json.loads(json_str)
+            return {
+                "corrected_text": result.get("corrected_text", text),
+                "corrections": result.get("corrections", [])
+            }
+    except Exception as e:
+        print(f"Eroare la parsarea răspunsului grammar check: {e}")
+        print(f"Răspuns primit: {full_response}")
+        # Fallback: returnăm răspunsul ca text corectat
+        return {
+            "corrected_text": full_response,
+            "corrections": ["Răspunsul nu a fost în format JSON corect"]
+        }
+    
+    # Dacă nu reușim să extragem JSON, returnăm textul original
+    return {
+        "corrected_text": text,
+        "corrections": ["Nu s-au găsit erori sau nu s-a putut procesa răspunsul"]
+    }
+
+
+@app.post("/grammar-check")
+async def grammar_check(request: GrammarCheckRequest):
+    """
+    Primește text și returnează textul corectat gramatical folosind Claude AI.
+    """
+    if bedrock_client is None:
+        raise HTTPException(
+            status_code=503, 
+            detail="Serviciul Bedrock (Claude) nu este disponibil. Verifică token-ul AWS_BEARER_TOKEN_BEDROCK."
+        )
+
+    if not request.text or len(request.text.strip()) < 5:
+        raise HTTPException(
+            status_code=400,
+            detail="Textul este prea scurt. Te rog furnizează cel puțin 5 caractere."
+        )
+
+    try:
+        result = call_claude_grammar_check(request.text)
+        return result
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        import traceback
+        print(f"Server Grammar Check: EROARE la /grammar-check: {e}")
+        print(traceback.format_exc())
+        raise HTTPException(status_code=500, detail=f"Eroare la verificarea gramaticală: {e}")
+
+
 # --- Pornirea Serverului ---
 if __name__ == "__main__":
-    print("Se pornește Serverul OCR + Quiz Generator pe http://0.0.0.0:8001")
+    print("Se pornește Serverul OCR + Quiz Generator + Grammar Check pe http://0.0.0.0:8001")
     # Bind to 0.0.0.0 so other containers in the same pod/network can reach it
     uvicorn.run(app, host="0.0.0.0", port=8001)

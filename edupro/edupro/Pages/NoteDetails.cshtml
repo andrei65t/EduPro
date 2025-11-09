@@ -43,7 +43,7 @@ else
                     {
                         <div class="mb-4">
                             <h5>📋 Rezumat</h5>
-                            <div class="mb-2 p-3 bg-light rounded border border-success text-dark">
+                            <div class="mb-2 p-3 rounded border" style="background-color: #1e2530; color: #e4e7eb; border-color: #4cc9f0 !important;">
                                 @Model.Note.Summary
                             </div>
                         </div>
@@ -51,7 +51,9 @@ else
 
                     <div class="mb-4">
                         <h5>📝 Text complet extras</h5>
-                        <div class="mt-2 p-3 bg-light rounded border text-dark" style="white-space: pre-wrap; max-height: 400px; overflow-y: auto;">@Model.Note.ExtractedText</div>
+                        <div class="mt-2 p-3 rounded border" style="background-color: #1e2530; color: #e4e7eb; border-color: #3d4756; white-space: pre-wrap; max-height: 400px; overflow-y: auto;">
+                            @Model.Note.ExtractedText
+                        </div>
                     </div>
 
                     <div class="mb-4">
