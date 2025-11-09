@@ -7,46 +7,34 @@
 }
 <div class="row">
     <div class="col-12">
-        <h1 class="welcome-title">Welcome, Andrei</h1>
+    <h1 class="welcome-title">Bine ai venit, Andrei 👋</h1>
 
         <!-- Scan bar (glow, no fill) -->
         <div class="mb-4">
-            <a asp-page="/NotesUpload" class="scan-bar">Scan your notes</a>
+            <a asp-page="/NotesUpload" class="scan-bar" role="button" aria-label="Scanează notițele tale">Scanează notițele tale</a>
         </div>
 
         <!-- Materii -->
         <div class="mt-3">
             <div class="fs-4 fw-bold">Toate cursurile</div>
             <div class="course-grid">
-                <a href="@(Url.Page("/Courses/Details", new { slug = "matematica" }))" class="course-card">
-                    <img src="@(Url.Content("~/img/matematica.svg"))" alt="Matematica" />
-                    <div class="course-title">Matematică</div>
-                </a>
-
-                <a href="@(Url.Page("/Courses/Details", new { slug = "romana" }))" class="course-card">
-                    <img src="@(Url.Content("~/img/romana.svg"))" alt="Romana" />
-                    <div class="course-title">Română</div>
-                </a>
-
-                <a href="@(Url.Page("/Courses/Details", new { slug = "chimie" }))" class="course-card">
-                    <img src="@(Url.Content("~/img/chimie.svg"))" alt="Chimie" />
-                    <div class="course-title">Chimie</div>
-                </a>
-
-                <a href="@(Url.Page("/Courses/Details", new { slug = "fizica" }))" class="course-card">
-                    <img src="@(Url.Content("~/img/fizica.svg"))" alt="Fizica" />
-                    <div class="course-title">Fizică</div>
-                </a>
-
-                <a href="@(Url.Page("/Courses/Details", new { slug = "biologie" }))" class="course-card">
-                    <img src="@(Url.Content("~/img/biologie.svg"))" alt="Biologie" />
-                    <div class="course-title">Biologie</div>
-                </a>
-
-                <a href="@(Url.Page("/Courses/Details", new { slug = "engleza" }))" class="course-card">
-                    <img src="@(Url.Content("~/img/engleza.svg"))" alt="Engleza" />
-                    <div class="course-title">Engleză</div>
-                </a>
+                @if (Model.Categories != null && Model.Categories.Count > 0)
+                {
+                    @foreach (var c in Model.Categories)
+                    {
+                        var slug = (c.Name ?? "").ToLowerInvariant().Replace(" ", "-");
+                        var initial = string.IsNullOrWhiteSpace(c.Name) ? "?" : c.Name.Trim().Substring(0,1).ToUpper();
+                        var bg = string.IsNullOrWhiteSpace(c.Color) ? string.Empty : $"background:{c.Color};";
+                        <a href="@(Url.Page("/Courses/Details", new { slug = slug }))" class="course-card">
+                            <div class="course-avatar" style="@bg" aria-hidden="true">@initial</div>
+                            <div class="course-title">@c.Name</div>
+                        </a>
+                    }
+                }
+                else
+                {
+                    <div class="text-muted">Nu există categorii. Creează una la încărcare sau din secțiunea de administrare.</div>
+                }
             </div>
         </div>
     </div>

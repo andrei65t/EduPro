@@ -14,15 +14,36 @@
 <div class="row g-4 mt-3">
     <div class="col-md-6">
         <div class="app-card">
-            <h4 class="mb-3">Lectii</h4>
-            @if (Model.Lessons?.Count > 0)
+            <h4 class="mb-3">Lecții</h4>
+
+            @if (Model.NotesData != null && Model.NotesData.Count > 0)
             {
-                <ul class="list-group list-group-flush">
-                    @foreach(var l in Model.Lessons)
+                var lessons = Model.NotesData
+                    .Select(n => n.Title ?? "Fără denumire")
+                    .Distinct()
+                    .ToList();
+
+                <div>
+                    @foreach(var lesson in lessons)
                     {
-                        <li class="list-group-item" style="background:transparent;border:none;padding:.6rem 0">@l</li>
+                        <div class="d-block mb-3">
+                            <button type="button" class="lesson-btn" data-lesson="@lesson">@lesson</button>
+                            <div class="mt-2">
+                                @{ 
+                                    var dates = Model.NotesData.Where(n => (n.Title ?? "Fără denumire") == lesson)
+                                        .Select(n => n.CreatedAt.Date)
+                                        .Distinct()
+                                        .OrderByDescending(d => d)
+                                        .ToList();
+                                }
+                                @foreach(var d in dates)
+                                {
+                                    <button type="button" class="badge bg-secondary date-badge" data-lesson="@lesson" data-date="@d.ToString("yyyy-MM-dd")">@d.ToString("dd MMM")</button>
+                                }
+                            </div>
+                        </div>
                     }
-                </ul>
+                </div>
             }
             else
             {
@@ -32,9 +53,37 @@
     </div>
 
     <div class="col-md-6">
-        <div class="app-card">
+        <div id="notes-panel" class="app-card hidden">
             <h4 class="mb-3">Notite</h4>
-            @if (Model.Notes?.Count > 0)
+            <div id="client-notes"><!-- client-rendered notes will be injected here --></div>
+
+            @* Server-rendered fallback for direct links / no-JS. This will be shown only if lesson/date are present on server side *@
+            <div id="server-notes" style="display:@((!string.IsNullOrWhiteSpace(Model.Lesson) || !string.IsNullOrWhiteSpace(Model.Date)) ? "block" : "none")">
+            @if (Model.NotesData != null && Model.NotesData.Count > 0 && (!string.IsNullOrWhiteSpace(Model.Lesson) || !string.IsNullOrWhiteSpace(Model.Date)))
+            {
+                var groups = Model.NotesData.GroupBy(n => n.CreatedAt.Date);
+                foreach (var g in groups)
+                {
+                    <div class="mb-3">
+                        <div class="fw-bold">@g.Key.ToString("dd MMMM yyyy")</div>
+                        <ul class="list-group list-group-flush mt-2">
+                            @foreach(var note in g)
+                            {
+                                <li class="list-group-item" style="background:transparent;border:none;padding:.6rem 0">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <div class="fw-semibold">@(!string.IsNullOrWhiteSpace(note.Title) ? note.Title : (note.OriginalFileName ?? "Notiță"))</div>
+                                            <div class="text-muted" style="font-size:.9rem">@((note.ExtractedText ?? "").Length > 180 ? (note.ExtractedText.Substring(0, 180) + "...") : note.ExtractedText)</div>
+                                        </div>
+                                        <div class="text-muted" style="font-size:.85rem">@note.CreatedAt.ToLocalTime().ToString("HH:mm")</div>
+                                    </div>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                }
+            }
+            else if (Model.Notes != null && Model.Notes.Count > 0)
             {
                 <ul class="list-group list-group-flush">
                     @foreach(var n in Model.Notes)
@@ -45,8 +94,87 @@
             }
             else
             {
-                <div class="text-muted">Nu există notițe încă.</div>
+                <div class="text-center text-muted py-5">
+                    <div style="font-size:2rem;">📚</div>
+                    <div class="mt-2">Apasă o lecție din stânga pentru a vedea notițele</div>
+                </div>
             }
+            </div>
         </div>
     </div>
 </div>
+
+@* Client-side notes JSON and rendering script *@
+<script>
+    (function(){
+    // parse notes data embedded as JSON (server-serialized into the page)
+    const notes = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.NotesData.Select(n => new { Id = n.Id, Title = n.Title ?? n.OriginalFileName ?? "Notiță", ExtractedText = n.ExtractedText ?? "", CreatedAt = n.CreatedAt })));
+
+        const notesPanel = document.getElementById('notes-panel');
+        const clientNotes = document.getElementById('client-notes');
+        const lessonBtns = document.querySelectorAll('.lesson-btn');
+        const dateBadges = document.querySelectorAll('.date-badge');
+
+        function renderNotes(filtered){
+            clientNotes.innerHTML = '';
+            if(!filtered || filtered.length === 0){
+                clientNotes.innerHTML = '<div class="text-muted">Nu există notițe pentru această selecție.</div>';
+                return;
+            }
+            // group by date
+            const groups = {};
+            filtered.forEach(n => {
+                const d = new Date(n.CreatedAt).toLocaleDateString();
+                if(!groups[d]) groups[d] = [];
+                groups[d].push(n);
+            });
+
+            for(const d of Object.keys(groups).sort((a,b)=> new Date(b)-new Date(a))){
+                const heading = document.createElement('div');
+                heading.className = 'mb-3';
+                heading.innerHTML = `<div class="fw-bold">${d}</div>`;
+                const ul = document.createElement('ul');
+                ul.className = 'list-group list-group-flush mt-2';
+                groups[d].forEach(n=>{
+                    const li = document.createElement('li');
+                    li.className = 'list-group-item';
+                    li.style.background = 'transparent'; li.style.border = 'none'; li.style.padding = '.6rem 0';
+                    li.innerHTML = `<div class="d-flex justify-content-between"><div><div class="fw-semibold">${escapeHtml(n.Title)}</div><div class="text-muted" style="font-size:.9rem">${escapeHtml(n.ExtractedText.length>180? n.ExtractedText.substring(0,180)+'...': n.ExtractedText)}</div></div><div class="text-muted" style="font-size:.85rem">${new Date(n.CreatedAt).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</div></div>`;
+                    ul.appendChild(li);
+                });
+                heading.appendChild(ul);
+                clientNotes.appendChild(heading);
+            }
+        }
+
+        function escapeHtml(str){
+            return String(str).replace(/[&<>"']/g, function(m){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[m]; });
+        }
+
+        lessonBtns.forEach(btn=>{
+            btn.addEventListener('click', ()=>{
+                lessonBtns.forEach(b=>b.classList.remove('active'));
+                btn.classList.add('active');
+                const lesson = btn.getAttribute('data-lesson');
+                const filtered = notes.filter(n => (n.Title || 'Fără denumire') === lesson);
+                renderNotes(filtered);
+                notesPanel.classList.remove('hidden');
+                // hide server notes fallback
+                const server = document.getElementById('server-notes'); if(server) server.style.display='none';
+            });
+        });
+
+        dateBadges.forEach(b=>{
+            b.addEventListener('click', ()=>{
+                lessonBtns.forEach(btn=>btn.classList.remove('active'));
+                const lesson = b.getAttribute('data-lesson');
+                const date = b.getAttribute('data-date');
+                const parsed = new Date(date);
+                const filtered = notes.filter(n=> (n.Title || 'Fără denumire') === lesson && (new Date(n.CreatedAt)).toDateString() === parsed.toDateString());
+                renderNotes(filtered);
+                notesPanel.classList.remove('hidden');
+                const server = document.getElementById('server-notes'); if(server) server.style.display='none';
+            });
+        });
+    })();
+</script>

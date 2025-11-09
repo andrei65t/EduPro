@@ -73,15 +73,18 @@
                 </div>
 
                 <div class="mb-3">
-                    <label asp-for="Title" class="form-label">Titlul setului de notițe (opțional)</label>
-                    <input asp-for="Title" class="form-control" placeholder="Ex: Analiză – capitolul 2" />
+                    <label asp-for="LessonName" class="form-label">Numele lecției (opțional)</label>
+                    <input asp-for="LessonName" class="form-control" placeholder="Ex: Lecția 2 - Analiză" />
                 </div>
 
-                <!-- SECȚIUNE NOUĂ: Categorie -->
+                <!-- SECȚIUNE: CATEGORII (select + creare noua categorie) -->
                 <div class="mb-3">
-                    <label class="form-label">📁 Categorie</label>
-                    <select asp-for="CategoryId" class="form-select mb-2" asp-items="Model.Categories">
-                    </select>
+                    <label class="form-label">📁 Categorii</label>
+                    <div class="d-flex align-items-center gap-2">
+                        <select asp-for="CategoryId" class="form-select mb-2" asp-items="Model.Categories" style="max-width:320px;">
+                        </select>
+                        <span class="text-muted">Selectează categoria</span>
+                    </div>
                     <div class="text-center mb-2">
                         <small class="text-muted">SAU</small>
                     </div>

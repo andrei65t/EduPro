@@ -22,6 +22,9 @@ namespace EduPro.Pages
 		public string? Title { get; set; }
 
 		[BindProperty]
+		public string? LessonName { get; set; }
+
+		[BindProperty]
 		public int? CategoryId { get; set; }
 
 		[BindProperty]
@@ -135,7 +138,8 @@ namespace EduPro.Pages
 						{
 							ExtractedText = ExtractedText,
 							Summary = Summary,
-							Title = string.IsNullOrWhiteSpace(Title) ? $"Notiță din {NotesFile.FileName}" : Title,
+							// Use LessonName as primary 'title' for grouping (if provided), otherwise keep provided Title or filename
+							Title = !string.IsNullOrWhiteSpace(LessonName) ? LessonName : (string.IsNullOrWhiteSpace(Title) ? $"Notiță din {NotesFile.FileName}" : Title),
 							OriginalFileName = NotesFile.FileName,
 							CategoryId = finalCategoryId,
 							CreatedAt = DateTime.UtcNow
