@@ -1,10 +1,26 @@
-﻿html, body {
+﻿/* ===== Design Tokens ===== */
+:root {
+    --bg: #0f172a;
+    --surface: rgba(15, 23, 42, 0.9);
+    --surface-alt: rgba(30, 41, 59, 0.6);
+    --border: rgba(148, 163, 184, 0.25);
+    --border-soft: rgba(148, 163, 184, 0.15);
+    --text: #e5e7eb;
+    --text-soft: rgba(229, 231, 235, 0.85);
+    --text-muted: #9ca3af;
+    --primary: #06b6d4;
+    --success: #22c55e;
+    --info: #38bdf8;
+    --danger: #ef4444;
+}
+
+html, body {
     height: 100%;
     margin: 0;
     padding: 0;
     font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    background-color: #0f172a;
-    color: #e5e7eb;
+    background-color: var(--bg);
+    color: var(--text);
 }
 
 /* Layout general */
@@ -17,9 +33,9 @@
 .sidebar {
     width: 260px;
     background: radial-gradient(circle at top left, #1e293b, #020617);
-    border-right: 1px solid rgba(148, 163, 184, 0.2);
+    border-right: 1px solid var(--border);
     padding: 1.25rem;
-    color: #e5e7eb;
+    color: var(--text);
 }
 
 .sidebar-header {
@@ -131,8 +147,8 @@
 /* Topbar */
 .topbar {
     padding: 0.9rem 1.5rem;
-    border-bottom: 1px solid rgba(148, 163, 184, 0.2);
-    background: rgba(15, 23, 42, 0.9);
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
     backdrop-filter: blur(10px);
 }
 
@@ -153,10 +169,10 @@
 
 /* Card-uri */
 .app-card {
-    background: rgba(15, 23, 42, 0.9);
+    background: var(--surface);
     border-radius: 1rem;
     padding: 1.25rem 1.4rem;
-    border: 1px solid rgba(148, 163, 184, 0.25);
+    border: 1px solid var(--border);
     box-shadow: 0 18px 45px rgba(15, 23, 42, 0.8);
 }
 
@@ -179,9 +195,9 @@
 
 /* Input-uri & butoane */
 .form-control, .form-select, textarea {
-    background-color: rgba(15, 23, 42, 0.9);
+    background-color: var(--surface);
     border: 1px solid rgba(148, 163, 184, 0.6);
-    color: #e5e7eb;
+    color: var(--text);
     border-radius: 0.7rem;
 }
 
@@ -193,7 +209,7 @@
     }
 
 .btn-primary {
-    background: linear-gradient(135deg, #22c55e, #06b6d4);
+    background: linear-gradient(135deg, var(--success), var(--primary));
     border: none;
     border-radius: 999px;
     font-weight: 500;
@@ -233,7 +249,7 @@
     margin-top: 1.25rem;
 }
 
-.course-card {
+ .course-card {
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -244,7 +260,7 @@
     background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
     border: 1px solid rgba(148,163,184,0.08);
     text-decoration: none;
-    color: #e5e7eb;
+    color: var(--text);
     transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
 }
 
@@ -561,5 +577,206 @@
     font-size: 0.75rem;
     color: #9ca3af;
 }
+
+/* ========== LIST GROUP (pentru NotesList) ========== */
+.list-group {
+    --bs-list-group-bg: transparent;
+    --bs-list-group-border-color: rgba(148, 163, 184, 0.15);
+}
+
+.list-group-item {
+    background: var(--surface-alt);
+    border: 1px solid var(--border-soft);
+    border-radius: 0.75rem;
+    margin-bottom: 1rem;
+    padding: 1.25rem;
+    color: var(--text);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.list-group-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(2, 6, 23, 0.6);
+    background: rgba(30, 41, 59, 0.7);
+}
+
+/* ========== BUTOANE OUTLINE (pentru compatibilitate cu tema întunecată) ========== */
+.btn-outline-primary {
+    color: #60a5fa;
+    border-color: #60a5fa;
+    background: transparent;
+}
+
+.btn-outline-primary:hover,
+.btn-outline-primary:focus {
+    background-color: #60a5fa;
+    border-color: #60a5fa;
+    color: #020617;
+}
+
+.btn-outline-secondary {
+    color: #94a3b8;
+    border-color: #94a3b8;
+    background: transparent;
+}
+
+.btn-outline-secondary:hover,
+.btn-outline-secondary:focus {
+    background-color: #94a3b8;
+    border-color: #94a3b8;
+    color: #020617;
+}
+
+.btn-outline-info {
+    color: #38bdf8;
+    border-color: #38bdf8;
+    background: transparent;
+}
+
+.btn-outline-info:hover,
+.btn-outline-info:focus {
+    background-color: #38bdf8;
+    border-color: #38bdf8;
+    color: #020617;
+}
+
+.btn-outline-success {
+    color: #22c55e;
+    border-color: #22c55e;
+    background: transparent;
+}
+
+.btn-outline-success:hover,
+.btn-outline-success:focus {
+    background-color: #22c55e;
+    border-color: #22c55e;
+    color: #020617;
+}
+
+.btn-outline-danger {
+    color: #ef4444;
+    border-color: #ef4444;
+    background: transparent;
+}
+
+.btn-outline-danger:hover,
+.btn-outline-danger:focus {
+    background-color: #ef4444;
+    border-color: #ef4444;
+    color: #fff;
+}
+
+/* ========== MODAL (fundal întunecat profesionist) ========== */
+.modal-content {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 1rem;
+    color: var(--text);
+    box-shadow: 0 24px 60px rgba(2, 6, 23, 0.8);
+}
+
+.modal-header {
+    border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.modal-footer {
+    border-top: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.modal-title {
+    color: #e5e7eb;
+    font-weight: 600;
+}
+
+.btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%);
+    opacity: 0.8;
+}
+
+.btn-close:hover {
+    opacity: 1;
+}
+
+/* ========== ALERT (pentru mesaje de succes/eroare) ========== */
+.alert {
+    border-radius: 0.75rem;
+    border: 1px solid transparent;
+}
+
+.alert-success {
+    background-color: rgba(34, 197, 94, 0.15);
+    border-color: rgba(34, 197, 94, 0.35);
+    color: #bbf7d0;
+}
+
+.alert-danger {
+    background-color: rgba(239, 68, 68, 0.15);
+    border-color: rgba(239, 68, 68, 0.35);
+    color: #fca5a5;
+}
+
+.alert-info {
+    background-color: rgba(56, 189, 248, 0.15);
+    border-color: rgba(56, 189, 248, 0.35);
+    color: #7dd3fc;
+}
+
+.alert-link {
+    color: #60a5fa;
+    font-weight: 600;
+}
+
+.alert-link:hover {
+    color: #93c5fd;
+}
+
+/* ========== BADGE (pentru categorii) ========== */
+.badge {
+    font-weight: 600;
+    padding: 0.35rem 0.65rem;
+    border-radius: 0.5rem;
+    font-size: 0.8rem;
+}
+
+/* ===== Utilities ===== */
+.text-bright { color: rgba(255,255,255,0.95) !important; }
+.text-soft { color: var(--text-soft) !important; }
+.text-muted { color: var(--text-muted) !important; }
+.border-soft { border-color: var(--border-soft) !important; }
+.bg-surface { background: var(--surface) !important; }
+.bg-surface-alt { background: var(--surface-alt) !important; }
+.badge-contrast { color: #fff !important; }
+
+/* ===== Response Box (pentru AskNotes) ===== */
+.response-box {
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    border-radius: 0.75rem;
+    color: var(--text);
+    line-height: 1.6;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+
+/* ========== FORM TEXT (text ajutor sub inputs) ========== */
+.form-text {
+    color: #9ca3af;
+}
+
+/* ========== BG-LIGHT override pentru tema întunecată ========== */
+.bg-light {
+    background-color: rgba(30, 41, 59, 0.6) !important;
+}
+
+/* ========== APP CARD BODY ========== */
+.app-card-body {
+    padding: 1rem 1.25rem;
+}
+
+.app-card-body.border-bottom {
+    border-bottom: 1px solid rgba(148, 163, 184, 0.2) !important;
+}
+
+
 
 

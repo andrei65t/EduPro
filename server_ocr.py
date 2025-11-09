@@ -295,6 +295,101 @@ async def generate_quiz(request: QuizRequest):
         raise HTTPException(status_code=500, detail=f"Eroare la generarea quiz-ului: {e}")
 
 
+# --- ==================== ENDPOINT ASK QUESTION ==================== ---
+
+class AskQuestionRequest(BaseModel):
+    question: str
+    context: str  # Textul din notițe
+
+def call_claude_answer_question(question: str, context: str) -> str:
+    """
+    Trimite întrebarea și contextul către Claude pentru a obține un răspuns.
+    """
+    if bedrock_client is None:
+        raise HTTPException(status_code=503, detail="Clientul Bedrock nu este inițializat.")
+
+    prompt_text = f"""Ești un asistent educațional util. Bazându-te STRICT pe următorul context din notițele utilizatorului, răspunde la întrebarea pusă.
+
+CONTEXT DIN NOTIȚE:
+{context}
+
+ÎNTREBAREA UTILIZATORULUI:
+{question}
+
+INSTRUCȚIUNI:
+- Răspunde în limba română
+- Folosește DOAR informațiile din contextul de mai sus
+- Dacă răspunsul nu poate fi găsit în context, spune clar că informația nu este disponibilă în notițe
+- Oferă un răspuns clar, concis și educațional
+- Dacă este relevant, citează părți din context pentru a susține răspunsul
+
+RĂSPUNSUL TĂU:"""
+
+    body = {
+        "anthropic_version": "bedrock-2023-05-31",
+        "max_tokens": 2048,
+        "messages": [
+            {
+                "role": "user",
+                "content": [{"type": "text", "text": prompt_text}]
+            }
+        ],
+    }
+
+    print(f"[Bedrock] Se trimite întrebarea către Claude...")
+    response = bedrock_client.invoke_model(
+        modelId=VISION_MODEL_ID,
+        body=json.dumps(body),
+        accept="application/json",
+        contentType="application/json",
+    )
+
+    payload = json.loads(response["body"].read())
+    text_blocks = [c.get("text", "") for c in payload.get("content", []) if c.get("type") == "text"]
+    print("[Bedrock] Răspuns primit.")
+    
+    return "\n".join(text_blocks).strip()
+
+
+@app.post("/ask-question")
+async def ask_question(request: AskQuestionRequest):
+    """
+    Primește o întrebare și context din notițe, returnează răspunsul generat de Claude AI.
+    """
+    if bedrock_client is None:
+        raise HTTPException(
+            status_code=503, 
+            detail="Serviciul Bedrock (Claude) nu este disponibil. Verifică token-ul AWS_BEARER_TOKEN_BEDROCK."
+        )
+
+    if not request.question or len(request.question.strip()) < 5:
+        raise HTTPException(
+            status_code=400,
+            detail="Întrebarea este prea scurtă. Te rog furnizează o întrebare validă."
+        )
+    
+    if not request.context or len(request.context.strip()) < 20:
+        raise HTTPException(
+            status_code=400,
+            detail="Contextul este prea scurt. Te rog furnizează mai mult text din notițe."
+        )
+
+    try:
+        answer = call_claude_answer_question(request.question, request.context)
+        return {
+            "question": request.question,
+            "answer": answer
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        import traceback
+        print(f"Server Q&A: EROARE la /ask-question: {e}")
+        print(traceback.format_exc())
+        raise HTTPException(status_code=500, detail=f"Eroare la generarea răspunsului: {e}")
+
+
 # --- Pornirea Serverului ---
 if __name__ == "__main__":
     print("Se pornește Serverul OCR + Quiz Generator pe http://0.0.0.0:8001")

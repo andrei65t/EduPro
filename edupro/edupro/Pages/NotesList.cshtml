@@ -106,19 +106,19 @@
 
                                         <!-- Titlu și badge categorie -->
                                         <div class="d-flex align-items-center gap-2 mb-2">
-                                            <h5 class="mb-0">
+                                            <h5 class="mb-0 text-bright" style="font-weight: 600;">
                                                 <i class="bi bi-file-text"></i>
                                                 @note.Title
                                             </h5>
                                             @if (note.Category != null)
                                             {
-                                                <span class="badge" style="background-color: @note.Category.Color;">
-                                                    @note.Category.Name
+                                                <span class="badge" style="background-color: @note.Category.Color; color: white; font-weight: 600;">
+                                                    <i class="bi bi-folder"></i> @note.Category.Name
                                                 </span>
                                             }
                                             else
                                             {
-                                                <span class="badge bg-secondary">Fără categorie</span>
+                                                <span class="badge bg-secondary badge-contrast" style="font-weight: 600;">Fără categorie</span>
                                             }
                                         </div>
 
@@ -126,18 +126,18 @@
                                         @if (!string.IsNullOrEmpty(note.Summary))
                                         {
                                             <div class="mb-2">
-                                                <strong>📋 Rezumat:</strong>
-                                                <p class="mb-1 text-muted">@note.Summary</p>
+                                                <strong class="text-bright">📋 Rezumat:</strong>
+                                                <p class="mb-1 text-soft">@note.Summary</p>
                                             </div>
                                         }
 
                                         <!-- Metadata (dată și fișier) -->
                                         <div class="mb-2">
-                                            <small class="text-muted">
+                                            <small class="text-soft">
                                                 <i class="bi bi-calendar"></i>
                                                 @note.CreatedAt.ToString("dd MMMM yyyy, HH:mm")
                                             </small>
-                                            <small class="text-muted ms-3">
+                                            <small class="ms-3 text-soft">
                                                 <i class="bi bi-file-earmark"></i>
                                                 @note.OriginalFileName
                                             </small>
@@ -156,11 +156,6 @@
                                                     data-bs-target="#changeCategoryModal-@note.Id">
                                                 <i class="bi bi-folder"></i> Schimbă categoria
                                             </button>
-                                            <a asp-page="/Explain"
-                                               asp-route-text="@note.ExtractedText"
-                                               class="btn btn-outline-info">
-                                                <i class="bi bi-lightbulb"></i> Explică
-                                            </a>
                                             <a asp-page="/AskNotes"
                                                asp-route-notes="@note.ExtractedText"
                                                class="btn btn-outline-success">
